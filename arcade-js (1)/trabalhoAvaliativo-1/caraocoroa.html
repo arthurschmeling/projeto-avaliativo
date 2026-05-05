@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🪙 Cara ou Coroa | Arcade JS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --neon: #ff1a1a; --gold: #ffffff; --dark-bg: #ffffff; --card-bg: #1a0000; }
+
+    body { background: var(--dark-bg); color: #fff; font-family: 'Orbitron', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+    nav { width: 100%; padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,26,26,0.2); }
+    nav a { color: var(--neon); text-decoration: none; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; transition: opacity 0.2s; }
+    nav a:hover { opacity: 1; }
+    nav span { color: rgba(255,255,255,0.2); font-size: 0.6rem; }
+
+    main { width: 100%; max-width: 720px; padding: 32px 20px 60px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+
+    h1 { font-family: 'Press Start 2P', monospace; font-size: clamp(0.9rem, 3.5vw, 1.6rem); color: #ff1a1a; text-align: center; letter-spacing: 3px; }
+
+    .scoreboard { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .score-box { background: var(--card-bg); border-radius: 12px; padding: 14px 22px; text-align: center; min-width: 90px; border: 1px solid rgba(255,255,255,0.06); }
+    .score-box.w { border-color: rgba(255,255,255,0.5); }
+    .score-box.l { border-color: rgba(204,0,0,0.6); }
+    .score-box.d { border-color: rgba(255,26,26,0.5); }
+    .score-label { font-size: 0.5rem; letter-spacing: 2px; opacity: 0.55; margin-bottom: 6px; }
+    .score-value { font-family: 'Press Start 2P', monospace; font-size: 1.5rem; }
+    .score-box.w .score-value { color: #ffffff; }
+    .score-box.l .score-value { color: #cc0000; }
+    .score-box.d .score-value { color: #ff1a1a; }
+
+    /* ─── MOEDA 3D ─── */
+    .coin-stage { perspective: 600px; width: 180px; height: 180px; margin: 8px 0; }
+
+    .coin { width: 180px; height: 180px; position: relative; transform-style: preserve-3d; transition: transform 0.1s; }
+
+    .coin-face, .coin-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .coin-face {
+      background: radial-gradient(circle at 35% 35%, #ff4444, #990000);
+      border: 6px solid #ff1a1a;
+      box-shadow: 0 0 30px rgba(255,26,26,0.6), inset 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .coin-back {
+      background: radial-gradient(circle at 35% 35%, #ffffff, #cccccc);
+      border: 6px solid #ffffff;
+      box-shadow: 0 0 20px rgba(255,255,255,0.3), inset 0 0 20px rgba(0,0,0,0.2);
+      transform: rotateY(180deg);
+    }
+
+    .coin-emoji { font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+    .coin-text  { font-family: 'Press Start 2P', monospace; font-size: 0.5rem; color: rgba(0,0,0,0.7); letter-spacing: 1px; }
+
+    .result-banner { font-family: 'Press Start 2P', monospace; font-size: clamp(0.75rem, 2.5vw, 1.05rem); text-align: center; padding: 16px 24px; border-radius: 12px; letter-spacing: 2px; width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: center; }
+    .result-banner.win  { background: rgba(0,255,0,0.1); border: 1px solid #00aa00; color: #006600; }
+    .result-banner.loss { background: rgba(255,0,0,0.1); border: 1px solid #aa0000; color: #660000; }
+    .result-banner.draw { background: rgba(255,165,0,0.1); border: 1px solid #ffaa00; color: #aa6600; }
+    .result-banner.idle { background: rgba(200,200,200,0.1); border: 1px solid #cccccc; color: #666666; }
+
+    .choice-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+    .choice-btn { background: var(--card-bg); border: 2px solid rgba(255,26,26,0.3); border-radius: 16px; padding: 22px 36px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'Orbitron', sans-serif; color: #fff; min-width: 130px; }
+    .choice-btn:hover:not(:disabled) { border-color: #ff1a1a; transform: translateY(-6px); box-shadow: 0 8px 24px rgba(255,26,26,0.3); }
+    .choice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .choice-btn .btn-emoji { font-size: 2.8rem; }
+    .choice-btn .btn-label { font-size: 0.65rem; letter-spacing: 2px; color: #ff1a1a; }
+    .choice-btn.selected { border-color: #ffffff; box-shadow: 0 0 20px rgba(255,255,255,0.25); }
+    .choice-btn.selected .btn-label { color: #ffffff; }
+
+    .reset-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; letter-spacing: 2px; transition: all 0.2s; }
+    .reset-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); }
+
+    .hint-text { font-size: 0.55rem; color: rgba(255,255,255,0.25); letter-spacing: 2px; text-align: center; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">🕹️ ARCADE JS</a>
+    <span>/</span>
+    <a href="#">🪙 CARA OU COROA</a>
+  </nav>
+
+  <main>
+    <h1>🪙 CARA OU COROA</h1>
+
+    <div class="scoreboard">
+      <div class="score-box w">
+        <div class="score-label">ACERTOS</div>
+        <div class="score-value" id="sc-win">0</div>
+      </div>
+      <div class="score-box d">
+        <div class="score-label">TOTAL</div>
+        <div class="score-value" id="sc-total">0</div>
+      </div>
+      <div class="score-box l">
+        <div class="score-label">ERROS</div>
+        <div class="score-value" id="sc-loss">0</div>
+      </div>
+    </div>
+
+    <!-- Moeda 3D com CSS preserve-3d -->
+    <div class="coin-stage">
+      <div class="coin" id="coin">
+        <div class="coin-face">
+          <span class="coin-emoji">👑</span>
+          <span class="coin-text">CARA</span>
+        </div>
+        <div class="coin-back">
+          <span class="coin-emoji">🦅</span>
+          <span class="coin-text">COROA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-banner idle" id="result-banner">ESCOLHA CARA OU COROA PARA JOGAR</div>
+
+    <div class="choice-row">
+      <button class="choice-btn" id="btn-cara" onclick="escolher('cara')">
+        <span class="btn-emoji">👑</span>
+        <span class="btn-label">CARA</span>
+      </button>
+      <button class="choice-btn" id="btn-coroa" onclick="escolher('coroa')">
+        <span class="btn-emoji">🦅</span>
+        <span class="btn-label">COROA</span>
+      </button>
+    </div>
+
+    <p class="hint-text" id="hint-text">CLIQUE EM UMA OPÇÃO PARA LANÇAR A MOEDA</p>
+
+    <button class="reset-btn" onclick="resetar()">↺ ZERAR PLACAR</button>
+  </main>
+
+  <script>
+    // ─── ESTADO ────────────────────────────────────────────────
+    let placar = { wins: 0, losses: 0, total: 0 };
+    let animando = false;
+
+    /**
+     * Realiza o sorteio da moeda (50/50)
+     * @returns {'cara'|'coroa'}
+     */
+    function sortearMoeda() {
+      return Math.random() < 0.5 ? 'cara' : 'coroa';
+    }
+
+    /** Atualiza o placar no DOM */
+    function atualizarPlacar() {
+      document.getElementById('sc-win').textContent   = placar.wins;
+      document.getElementById('sc-loss').textContent  = placar.losses;
+      document.getElementById('sc-total').textContent = placar.total;
+    }
+
+    /** Bloqueia / desbloqueia os botões de escolha */
+    function setBotoes(estado) {
+      document.getElementById('btn-cara').disabled  = !estado;
+      document.getElementById('btn-coroa').disabled = !estado;
+    }
+
+    /**
+     * Animação CSS 3D da moeda (rotateY)
+     * cara  → termina em múltiplo de 360 (face frontal visível)
+     * coroa → termina em múltiplo de 360 + 180 (face traseira visível)
+     * @param {string} resultado
+     * @returns {Promise}
+     */
+    function animarMoeda(resultado) {
+      return new Promise(resolve => {
+        const coin = document.getElementById('coin');
+        const angFinal = resultado === 'cara' ? 1440 : 1620;
+
+        coin.style.transition = 'none';
+        coin.style.transform  = 'rotateY(0deg)';
+        void coin.offsetWidth; // força reflow
+
+        coin.style.transition = 'transform 1.2s ease-out';
+        coin.style.transform  = `rotateY(${angFinal}deg)`;
+
+        setTimeout(resolve, 1300);
+      });
+    }
+
+    /**
+     * Função principal — o jogador faz sua escolha
+     * @param {string} escolha - 'cara' | 'coroa'
+     */
+    async function escolher(escolha) {
+      if (animando) return;
+      animando = true;
+      setBotoes(false);
+
+      // Destaca botão escolhido
+      document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById(`btn-${escolha}`).classList.add('selected');
+
+      const banner = document.getElementById('result-banner');
+      banner.className = 'result-banner idle';
+      banner.textContent = 'A MOEDA ESTÁ NO AR...';
+      document.getElementById('hint-text').textContent = `VOCÊ ESCOLHEU: ${escolha.toUpperCase()}`;
+
+      // Sorteio
+      const resultado = sortearMoeda();
+
+      await animarMoeda(resultado);
+
+      // Avalia
+      const acertou = escolha === resultado;
+      placar.total++;
+      if (acertou) placar.wins++;
+      else         placar.losses++;
+
+      atualizarPlacar();
+
+      const taxaAcerto = Math.round((placar.wins / placar.total) * 100);
+
+      if (acertou) {
+        banner.className = 'result-banner win';
+        banner.textContent = `🏆 ACERTOU! SAIU ${resultado.toUpperCase()}!`;
+      } else {
+        banner.className = 'result-banner loss';
+        banner.textContent = `💀 ERROU! SAIU ${resultado.toUpperCase()}!`;
+      }
+
+      document.getElementById('hint-text').textContent =
+        `TAXA DE ACERTO: ${taxaAcerto}% (${placar.wins}/${placar.total})`;
+
+      setTimeout(() => {
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+      }, 800);
+
+      setBotoes(true);
+      animando = false;
+    }
+
+    /** Reseta o jogo completamente */
+    function resetar() {
+      placar = { wins: 0, losses: 0, total: 0 };
+      atualizarPlacar();
+
+      const coin = document.getElementById('coin');
+      coin.style.transition = 'transform 0.3s';
+      coin.style.transform  = 'rotateY(0deg)';
+
+      const banner = document.getElementById('result-banner');
+      banner.className = 'result-banner idle';
+      banner.textContent = 'ESCOLHA CARA OU COROA PARA JOGAR';
+      document.getElementById('hint-text').textContent = 'CLIQUE EM UMA OPÇÃO PARA LANÇAR A MOEDA';
+      document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+    }
+  </script>
+</body>
+</html>

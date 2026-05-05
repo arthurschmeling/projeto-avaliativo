@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎲 Batalha de Dados | Arcade JS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --neon: #ff1a1a; --dark-bg: #ffffff; --card-bg: #1a0000; }
+
+    body { background: var(--dark-bg); color: #fff; font-family: 'Orbitron', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+    nav { width: 100%; padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,26,26,0.2); }
+    nav a { color: var(--neon); text-decoration: none; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; transition: opacity 0.2s; }
+    nav a:hover { opacity: 1; }
+    nav span { color: rgba(255,255,255,0.2); font-size: 0.6rem; }
+
+    main { width: 100%; max-width: 860px; padding: 32px 20px 60px; display: flex; flex-direction: column; align-items: center; gap: 28px; }
+
+    h1 { font-family: 'Press Start 2P', monospace; font-size: clamp(1rem, 4vw, 1.8rem); color: #ff1a1a; text-align: center; letter-spacing: 3px; }
+
+    .scoreboard { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .score-box { background: var(--card-bg); border-radius: 12px; padding: 14px 20px; text-align: center; min-width: 90px; border: 1px solid rgba(255,255,255,0.06); }
+    .score-box.p { border-color: rgba(255,255,255,0.5); }
+    .score-box.c { border-color: rgba(204,0,0,0.6); }
+    .score-box.e { border-color: rgba(255,26,26,0.5); }
+    .score-box.r { border-color: rgba(255,255,255,0.15); }
+    .score-label { font-size: 0.5rem; letter-spacing: 2px; opacity: 0.55; margin-bottom: 6px; }
+    .score-value { font-family: 'Press Start 2P', monospace; font-size: 1.5rem; }
+    .score-box.p .score-value { color: #ffffff; }
+    .score-box.c .score-value { color: #cc0000; }
+    .score-box.e .score-value { color: #ff1a1a; }
+    .score-box.r .score-value { color: rgba(255,255,255,0.45); }
+
+    .arena { background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,26,26,0.2); width: 100%; padding: 36px 24px; display: grid; grid-template-columns: 1fr 60px 1fr; gap: 16px; align-items: center; }
+    .side { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .side-label { font-size: 0.55rem; letter-spacing: 3px; opacity: 0.5; }
+
+    .dice-wrap { width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
+    .dice-svg { width: 100%; height: 100%; border-radius: 18px; transition: transform 0.15s; }
+    .dice-svg.rolling { animation: roll 0.5s ease; }
+    @keyframes roll {
+      0%   { transform: rotate(0deg)   scale(1);    }
+      25%  { transform: rotate(15deg)  scale(0.9);  }
+      50%  { transform: rotate(-10deg) scale(1.1);  }
+      75%  { transform: rotate(5deg)   scale(0.95); }
+      100% { transform: rotate(0deg)   scale(1);    }
+    }
+
+    .dice-number { font-family: 'Press Start 2P', monospace; font-size: 1.5rem; min-height: 32px; }
+    .side-player .dice-number { color: #ffffff; }
+    .side-cpu    .dice-number { color: #ff1a1a; }
+
+    .vs { font-family: 'Press Start 2P', monospace; font-size: 1rem; color: rgba(255,255,255,0.15); text-align: center; }
+
+    .result-banner { font-family: 'Press Start 2P', monospace; font-size: clamp(0.75rem, 2.5vw, 1.1rem); text-align: center; padding: 16px 24px; border-radius: 12px; letter-spacing: 3px; width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: center; }
+    .result-banner.win  { background: rgba(0,255,0,0.1); border: 1px solid #00aa00; color: #006600; }
+    .result-banner.loss { background: rgba(255,0,0,0.1); border: 1px solid #aa0000; color: #660000; }
+    .result-banner.draw { background: rgba(255,165,0,0.1); border: 1px solid #ffaa00; color: #aa6600; }
+    .result-banner.idle { background: rgba(200,200,200,0.1); border: 1px solid #cccccc; color: #666666; }
+
+    .actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    .btn-primary { background: #ff1a1a; color: #0d0d0d; border: none; padding: 16px 40px; border-radius: 12px; font-family: 'Press Start 2P', monospace; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; transition: filter 0.2s, transform 0.15s; }
+    .btn-primary:hover  { filter: brightness(1.2); transform: translateY(-3px); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 14px 28px; border-radius: 12px; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); }
+
+    .round-info { font-size: 0.6rem; letter-spacing: 2px; color: rgba(255,255,255,0.3); }
+
+    @media (max-width: 480px) {
+      .arena { grid-template-columns: 1fr; }
+      .vs { order: 2; }
+      .side-cpu { order: 3; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">🕹️ ARCADE JS</a>
+    <span>/</span>
+    <a href="#">🎲 BATALHA DE DADOS</a>
+  </nav>
+
+  <main>
+    <h1>🎲 BATALHA DE DADOS</h1>
+
+    <div class="scoreboard">
+      <div class="score-box p">
+        <div class="score-label">JOGADOR</div>
+        <div class="score-value" id="score-player">0</div>
+      </div>
+      <div class="score-box e">
+        <div class="score-label">EMPATES</div>
+        <div class="score-value" id="score-draw">0</div>
+      </div>
+      <div class="score-box c">
+        <div class="score-label">CPU</div>
+        <div class="score-value" id="score-cpu">0</div>
+      </div>
+      <div class="score-box r">
+        <div class="score-label">RODADAS</div>
+        <div class="score-value" id="score-rounds">0</div>
+      </div>
+    </div>
+
+    <div class="arena">
+      <div class="side side-player">
+        <div class="side-label">▶ VOCÊ</div>
+        <div class="dice-wrap">
+          <svg id="dice-player" class="dice-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="90" height="90" rx="18" ry="18" fill="#1a0000" stroke="#ffffff" stroke-width="3"/>
+            <circle cx="50" cy="50" r="8" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="dice-number" id="num-player">—</div>
+      </div>
+
+      <div class="vs">VS</div>
+
+      <div class="side side-cpu">
+        <div class="side-label">CPU ◀</div>
+        <div class="dice-wrap">
+          <svg id="dice-cpu" class="dice-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="90" height="90" rx="18" ry="18" fill="#1a0000" stroke="#ff1a1a" stroke-width="3"/>
+            <circle cx="50" cy="50" r="8" fill="#ff1a1a"/>
+          </svg>
+        </div>
+        <div class="dice-number" id="num-cpu">—</div>
+      </div>
+    </div>
+
+    <div class="result-banner idle" id="result-banner">PRESSIONE "LANÇAR DADOS" PARA JOGAR</div>
+
+    <div class="actions">
+      <button class="btn-primary" id="btn-roll" onclick="lancarDados()">🎲 LANÇAR DADOS</button>
+      <button class="btn-secondary" onclick="resetar()">↺ REINICIAR</button>
+    </div>
+
+    <p class="round-info" id="round-info"></p>
+  </main>
+
+  <script>
+    // ─── ESTADO ────────────────────────────────────────────────
+    let placar = { player: 0, cpu: 0, draw: 0, rounds: 0 };
+    let animando = false;
+
+    // Posições dos pontos para cada face do dado
+    const FACES = {
+      1: [[50, 50]],
+      2: [[28, 28], [72, 72]],
+      3: [[28, 28], [50, 50], [72, 72]],
+      4: [[28, 28], [72, 28], [28, 72], [72, 72]],
+      5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]],
+      6: [[28, 25], [72, 25], [28, 50], [72, 50], [28, 75], [72, 75]]
+    };
+
+    /**
+     * Gera um número aleatório de dado (1-6)
+     * @returns {number}
+     */
+    function rolarDado() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    /**
+     * Renderiza as faces do dado como SVG dinâmico
+     * @param {string} svgId
+     * @param {number} valor
+     * @param {string} cor
+     */
+    function renderizarDado(svgId, valor, cor) {
+      const svg = document.getElementById(svgId);
+      const pontos = FACES[valor];
+
+      // Remove pontos anteriores, mantém apenas o <rect> de fundo
+      while (svg.children.length > 1) svg.removeChild(svg.lastChild);
+
+      pontos.forEach(([cx, cy]) => {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', '8');
+        circle.setAttribute('fill', cor);
+        svg.appendChild(circle);
+      });
+    }
+
+    /**
+     * Verifica o resultado comparando dois dados
+     * @param {number} vPlayer
+     * @param {number} vCpu
+     * @returns {'win'|'loss'|'draw'}
+     */
+    function verificarResultado(vPlayer, vCpu) {
+      if (vPlayer > vCpu)  return 'win';
+      if (vPlayer < vCpu)  return 'loss';
+      return 'draw';
+    }
+
+    /** Atualiza o placar no DOM */
+    function atualizarPlacar() {
+      document.getElementById('score-player').textContent = placar.player;
+      document.getElementById('score-cpu').textContent    = placar.cpu;
+      document.getElementById('score-draw').textContent   = placar.draw;
+      document.getElementById('score-rounds').textContent = placar.rounds;
+    }
+
+    /**
+     * Anima a rolagem dos dados (efeito visual com ticks aleatórios)
+     * @returns {Promise}
+     */
+    function animarRolagem() {
+      return new Promise(resolve => {
+        const svgP = document.getElementById('dice-player');
+        const svgC = document.getElementById('dice-cpu');
+
+        svgP.classList.add('rolling');
+        svgC.classList.add('rolling');
+
+        let ticks = 0;
+        const interval = setInterval(() => {
+          const r1 = Math.floor(Math.random() * 6) + 1;
+          const r2 = Math.floor(Math.random() * 6) + 1;
+          renderizarDado('dice-player', r1, '#ffffff');
+          renderizarDado('dice-cpu',    r2, '#ff1a1a');
+          document.getElementById('num-player').textContent = r1;
+          document.getElementById('num-cpu').textContent    = r2;
+
+          ticks++;
+          if (ticks >= 8) {
+            clearInterval(interval);
+            svgP.classList.remove('rolling');
+            svgC.classList.remove('rolling');
+            resolve();
+          }
+        }, 80);
+      });
+    }
+
+    /**
+     * Função principal — lança os dados (async para aguardar animação)
+     */
+    async function lancarDados() {
+      if (animando) return;
+      animando = true;
+
+      const btn = document.getElementById('btn-roll');
+      btn.disabled = true;
+
+      await animarRolagem();
+
+      // Resultado real
+      const vPlayer   = rolarDado();
+      const vCpu      = rolarDado();
+      const resultado = verificarResultado(vPlayer, vCpu);
+
+      renderizarDado('dice-player', vPlayer, '#ffffff');
+      renderizarDado('dice-cpu',    vCpu,    '#ff1a1a');
+      document.getElementById('num-player').textContent = vPlayer;
+      document.getElementById('num-cpu').textContent    = vCpu;
+
+      // Atualiza estado
+      placar.rounds++;
+      if (resultado === 'win')  placar.player++;
+      if (resultado === 'loss') placar.cpu++;
+      if (resultado === 'draw') placar.draw++;
+
+      atualizarPlacar();
+
+      // Banner
+      const banner = document.getElementById('result-banner');
+      const msgs = {
+        win:  '🏆 VOCÊ VENCEU A RODADA!',
+        loss: '💀 CPU VENCEU A RODADA!',
+        draw: '🤝 EMPATE! RODADA NULA!'
+      };
+      banner.className = 'result-banner ' + resultado;
+      banner.textContent = msgs[resultado];
+
+      document.getElementById('round-info').textContent =
+        `RODADA ${placar.rounds} · JOGADOR: ${vPlayer} vs CPU: ${vCpu}`;
+
+      btn.disabled = false;
+      animando = false;
+    }
+
+    /** Reinicia completamente o jogo */
+    function resetar() {
+      placar = { player: 0, cpu: 0, draw: 0, rounds: 0 };
+      atualizarPlacar();
+
+      renderizarDado('dice-player', 1, '#ffffff');
+      renderizarDado('dice-cpu',    1, '#ff1a1a');
+      document.getElementById('num-player').textContent = '—';
+      document.getElementById('num-cpu').textContent    = '—';
+
+      const banner = document.getElementById('result-banner');
+      banner.className = 'result-banner idle';
+      banner.textContent = 'PRESSIONE "LANÇAR DADOS" PARA JOGAR';
+      document.getElementById('round-info').textContent = '';
+    }
+
+    // Inicializa dados na face 1
+    renderizarDado('dice-player', 1, '#ffffff');
+    renderizarDado('dice-cpu',    1, '#ff1a1a');
+  </script>
+</body>
+</html>

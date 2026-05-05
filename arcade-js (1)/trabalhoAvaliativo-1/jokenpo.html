@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✊ Jokenpô | Arcade JS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --neon: #ff1a1a; --dark-bg: #ffffff; --card-bg: #1a0000; }
+
+    body { background: var(--dark-bg); color: #fff; font-family: 'Orbitron', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+    nav { width: 100%; padding: 16px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,26,26,0.2); }
+    nav a { color: var(--neon); text-decoration: none; font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; transition: opacity 0.2s; }
+    nav a:hover { opacity: 1; }
+    nav span { color: rgba(255,255,255,0.2); font-size: 0.6rem; }
+
+    main { width: 100%; max-width: 860px; padding: 32px 20px 60px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+
+    h1 { font-family: 'Press Start 2P', monospace; font-size: clamp(1rem, 4vw, 1.8rem); color: #ff1a1a; text-align: center; letter-spacing: 3px; }
+
+    .scoreboard { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .score-box { background: var(--card-bg); border-radius: 12px; padding: 16px 24px; text-align: center; min-width: 100px; border: 1px solid rgba(255,255,255,0.08); }
+    .score-box.wins   { border-color: rgba(255,255,255,0.6); box-shadow: 0 0 16px rgba(255,255,255,0.1); }
+    .score-box.losses { border-color: rgba(204,0,0,0.7);     box-shadow: 0 0 16px rgba(204,0,0,0.2); }
+    .score-box.draws  { border-color: rgba(255,26,26,0.6);   box-shadow: 0 0 16px rgba(255,26,26,0.15); }
+    .score-label { font-size: 0.55rem; letter-spacing: 3px; opacity: 0.6; margin-bottom: 8px; }
+    .score-value { font-family: 'Press Start 2P', monospace; font-size: 1.8rem; }
+    .wins   .score-value { color: #ffffff; }
+    .losses .score-value { color: #cc0000; }
+    .draws  .score-value { color: #ff1a1a; }
+
+    .arena { background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,26,26,0.2); width: 100%; padding: 32px 20px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; }
+    .player-side { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .player-label { font-size: 0.55rem; letter-spacing: 3px; opacity: 0.5; }
+
+    .choice-display { font-size: clamp(3rem, 10vw, 5rem); line-height: 1; min-height: 80px; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
+    .choice-display.bounce { animation: bounce 0.4s ease; }
+    @keyframes bounce { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
+    .choice-name { font-size: 0.65rem; letter-spacing: 2px; min-height: 20px; color: #ff1a1a; }
+    .vs { font-family: 'Press Start 2P', monospace; font-size: 1.2rem; color: rgba(255,255,255,0.2); }
+
+    .result-banner { font-family: 'Press Start 2P', monospace; font-size: clamp(0.8rem, 3vw, 1.2rem); text-align: center; padding: 16px 32px; border-radius: 12px; letter-spacing: 3px; min-height: 58px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; width: 100%; }
+    .result-banner.win  { background: rgba(0,255,0,0.1); border: 1px solid #00aa00; color: #006600; }
+    .result-banner.loss { background: rgba(255,0,0,0.1); border: 1px solid #aa0000; color: #660000; }
+    .result-banner.draw { background: rgba(255,165,0,0.1); border: 1px solid #ffaa00; color: #aa6600; }
+    .result-banner.idle { background: rgba(200,200,200,0.1); border: 1px solid #cccccc; color: #666666; }
+
+    .choices-row { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .choice-btn { background: var(--card-bg); border: 2px solid rgba(255,26,26,0.3); border-radius: 16px; padding: 20px 28px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: all 0.2s; font-family: 'Orbitron', sans-serif; color: #fff; }
+    .choice-btn:hover { border-color: #ff1a1a; transform: translateY(-6px); box-shadow: 0 8px 24px rgba(255,26,26,0.3); }
+    .choice-btn:active { transform: translateY(-2px) scale(0.97); }
+    .choice-btn .btn-emoji { font-size: 2.5rem; }
+    .choice-btn .btn-label { font-size: 0.65rem; letter-spacing: 2px; color: #ff1a1a; }
+
+    .reset-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.6rem; letter-spacing: 2px; transition: all 0.2s; }
+    .reset-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.8); }
+
+    @media (max-width: 500px) {
+      .arena { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+      .vs { order: 2; font-size: 0.8rem; }
+      .player-side:last-of-type { order: 3; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">🕹️ ARCADE JS</a>
+    <span>/</span>
+    <a href="#">✊ JOKENPÔ</a>
+  </nav>
+
+  <main>
+    <h1>✊ JOKENPÔ</h1>
+
+    <div class="scoreboard">
+      <div class="score-box wins">
+        <div class="score-label">VITÓRIAS</div>
+        <div class="score-value" id="wins">0</div>
+      </div>
+      <div class="score-box draws">
+        <div class="score-label">EMPATES</div>
+        <div class="score-value" id="draws">0</div>
+      </div>
+      <div class="score-box losses">
+        <div class="score-label">DERROTAS</div>
+        <div class="score-value" id="losses">0</div>
+      </div>
+    </div>
+
+    <div class="arena">
+      <div class="player-side">
+        <div class="player-label">▶ VOCÊ</div>
+        <div class="choice-display" id="player-choice">❓</div>
+        <div class="choice-name" id="player-name"></div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="player-side">
+        <div class="player-label">COMPUTADOR ◀</div>
+        <div class="choice-display" id="cpu-choice">❓</div>
+        <div class="choice-name" id="cpu-name"></div>
+      </div>
+    </div>
+
+    <div class="result-banner idle" id="result-banner">ESCOLHA SUA JOGADA ABAIXO</div>
+
+    <div class="choices-row">
+      <button class="choice-btn" onclick="jogar('pedra')">
+        <span class="btn-emoji">✊</span>
+        <span class="btn-label">PEDRA</span>
+      </button>
+      <button class="choice-btn" onclick="jogar('papel')">
+        <span class="btn-emoji">✋</span>
+        <span class="btn-label">PAPEL</span>
+      </button>
+      <button class="choice-btn" onclick="jogar('tesoura')">
+        <span class="btn-emoji">✌️</span>
+        <span class="btn-label">TESOURA</span>
+      </button>
+    </div>
+
+    <button class="reset-btn" onclick="resetarPlacar()">↺ ZERAR PLACAR</button>
+  </main>
+
+  <script>
+    // ─── DADOS ────────────────────────────────────────────────
+    const opcoes = ['pedra', 'papel', 'tesoura'];
+
+    const emojis = { pedra: '✊', papel: '✋', tesoura: '✌️' };
+    const nomes  = { pedra: 'PEDRA', papel: 'PAPEL', tesoura: 'TESOURA' };
+
+    // Regras: chave VENCE o valor
+    const vence = { pedra: 'tesoura', papel: 'pedra', tesoura: 'papel' };
+
+    let placar = { wins: 0, losses: 0, draws: 0 };
+
+    /**
+     * Gera a jogada aleatória do computador
+     * @returns {string} 'pedra' | 'papel' | 'tesoura'
+     */
+    function escolhaDaIA() {
+      return opcoes[Math.floor(Math.random() * 3)];
+    }
+
+    /**
+     * Verifica o vencedor da rodada
+     * @param {string} jogador
+     * @param {string} cpu
+     * @returns {'win'|'loss'|'draw'}
+     */
+    function verificarVencedor(jogador, cpu) {
+      if (jogador === cpu) return 'draw';
+      if (vence[jogador] === cpu) return 'win';
+      return 'loss';
+    }
+
+    /** Atualiza os contadores no DOM */
+    function atualizarPlacar() {
+      document.getElementById('wins').textContent   = placar.wins;
+      document.getElementById('losses').textContent = placar.losses;
+      document.getElementById('draws').textContent  = placar.draws;
+    }
+
+    /** Exibe as escolhas na arena com animação */
+    function exibirEscolhas(jogador, cpu) {
+      const playerEl = document.getElementById('player-choice');
+      const cpuEl    = document.getElementById('cpu-choice');
+
+      playerEl.textContent = emojis[jogador];
+      cpuEl.textContent    = emojis[cpu];
+      document.getElementById('player-name').textContent = nomes[jogador];
+      document.getElementById('cpu-name').textContent    = nomes[cpu];
+
+      playerEl.classList.remove('bounce');
+      cpuEl.classList.remove('bounce');
+      void playerEl.offsetWidth;
+      void cpuEl.offsetWidth;
+      playerEl.classList.add('bounce');
+      cpuEl.classList.add('bounce');
+    }
+
+    /** Exibe o banner de resultado */
+    function exibirResultado(resultado) {
+      const banner = document.getElementById('result-banner');
+      banner.className = 'result-banner';
+
+      const mensagens = {
+        win:  '🏆  VOCÊ VENCEU!',
+        loss: '💀  VOCÊ PERDEU!',
+        draw: '🤝  EMPATE!'
+      };
+
+      banner.classList.add(resultado);
+      banner.textContent = mensagens[resultado];
+    }
+
+    /**
+     * Função principal — executa uma rodada
+     * @param {string} escolhaJogador
+     */
+    function jogar(escolhaJogador) {
+      if (!opcoes.includes(escolhaJogador)) return;
+
+      const escolhaCPU = escolhaDaIA();
+      const resultado  = verificarVencedor(escolhaJogador, escolhaCPU);
+
+      if (resultado === 'win')  placar.wins++;
+      if (resultado === 'loss') placar.losses++;
+      if (resultado === 'draw') placar.draws++;
+
+      exibirEscolhas(escolhaJogador, escolhaCPU);
+      exibirResultado(resultado);
+      atualizarPlacar();
+    }
+
+    /** Zera o placar e reseta a interface */
+    function resetarPlacar() {
+      placar = { wins: 0, losses: 0, draws: 0 };
+      atualizarPlacar();
+
+      document.getElementById('player-choice').textContent = '❓';
+      document.getElementById('cpu-choice').textContent    = '❓';
+      document.getElementById('player-name').textContent   = '';
+      document.getElementById('cpu-name').textContent      = '';
+
+      const banner = document.getElementById('result-banner');
+      banner.className = 'result-banner idle';
+      banner.textContent = 'ESCOLHA SUA JOGADA ABAIXO';
+    }
+  </script>
+</body>
+</html>
