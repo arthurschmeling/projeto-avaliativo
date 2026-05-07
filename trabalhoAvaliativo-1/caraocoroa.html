@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cara ou Coroa | Arcade JS</title>
+  <link rel="stylesheet" href="../CSS/main.css" />
+</head>
+<body class="page-caraocoroa">
+  <main>
+    <nav class="page-nav">
+      <a href="index.html">← Voltar</a>
+    </nav>
+
+    <section class="game-hero">
+      <div>
+        <div class="brand-title">Cara ou Coroa</div>
+        <div class="brand-subtitle">Aposte, gire a moeda e veja se ganha a rodada.</div>
+      </div>
+      <div class="hero-tags">
+        <span class="badge badge-soft">Cassino</span>
+        <span class="badge badge-soft">Aposta livre</span>
+        <span class="badge badge-soft">Saldo negativo</span>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card stat-card--accent">
+        <span class="stat-label">Saldo atual</span>
+        <span class="stat-value" id="sc-balance">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Jogadas</span>
+        <span class="stat-value" id="sc-total">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Aposta mínima</span>
+        <span class="stat-value">10</span>
+      </div>
+    </section>
+
+    <section class="game-grid">
+      <article class="game-panel">
+        <div class="coin-card">
+          <div class="dice-box coin-display">
+            <div id="coin" class="coin-face">
+              <div class="coin-side coin-front">
+                <img src="assets/img/cara1.png" alt="Cara" />
+              </div>
+              <div class="coin-side coin-back">
+                <img src="assets/img/coroa.png" alt="Coroa" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-banner idle" id="result-banner">Defina sua aposta e escolha Cara ou Coroa.</div>
+        <div class="hint-text" id="hint-text">Saldo negativo permitido. Use o +10 para aumentar a aposta.</div>
+      </article>
+
+      <aside class="sidebar-panel">
+        <div class="panel panel-tertiary">
+          <div class="panel-title">Aposta</div>
+          <div class="bet-row">
+            <button class="bet-control" id="bet-decrease">-10</button>
+            <input id="bet-amount" class="bet-input" type="number" min="10" step="10" value="10" />
+            <button class="bet-control" id="bet-increase">+10</button>
+          </div>
+          <div class="bet-note">Aposte com liberdade. Saldo negativo liberado para recuperar na próxima vitória.</div>
+        </div>
+
+        <div class="panel panel-tertiary choices-panel">
+          <div class="panel-title">Escolha seu lado</div>
+          <div class="choices">
+            <button class="choice-btn" id="btn-cara">
+              <span class="choice-icon"><img src="assets/img/cara1.png" alt="Cara" /></span>
+              <span class="choice-label">Cara</span>
+            </button>
+            <button class="choice-btn" id="btn-coroa">
+              <span class="choice-icon"><img src="assets/img/coroa.png" alt="Coroa" /></span>
+              <span class="choice-label">Coroa</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-primary" id="btn-reset">Reiniciar Jogo</button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">Arcade JS style · branco e vermelho</footer>
+  <script src="../js/caraocoroa.js"></script>
+</body>
+</html>

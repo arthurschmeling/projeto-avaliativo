@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jokenpô | Arcade JS</title>
+  <link rel="stylesheet" href="../CSS/main.css" />
+</head>
+<body class="page-jokenpo">
+  <main>
+    <nav class="page-nav">
+      <a href="index.html">← Voltar</a>
+    </nav>
+
+    <header class="page-header">
+      <div>
+        <div class="brand-title">Jokenpô</div>
+        <div class="brand-subtitle">Pedra, Papel ou Tesoura</div>
+      </div>
+      <span class="badge">Rápido e direto</span>
+    </header>
+
+    <div class="score-row">
+      <div class="stat">
+        <span class="stat-label">Vitórias</span>
+        <span class="stat-value" id="wins">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Empates</span>
+        <span class="stat-value" id="draws">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Derrotas</span>
+        <span class="stat-value" id="losses">0</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="score-row">
+        <div class="stat">
+          <span class="stat-label">Você</span>
+          <span class="stat-value" id="player-choice">❓</span>
+          <div class="hint-text" id="player-name"></div>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Computador</span>
+          <span class="stat-value" id="cpu-choice">❓</span>
+          <div class="hint-text" id="cpu-name"></div>
+        </div>
+      </div>
+
+      <div class="result-banner idle" id="result-banner">Escolha sua jogada abaixo</div>
+
+      <div class="choices">
+        <button class="choice-btn" data-choice="pedra">
+          <span class="choice-emoji">✊</span>
+          <span class="choice-label">Pedra</span>
+        </button>
+        <button class="choice-btn" data-choice="papel">
+          <span class="choice-emoji">✋</span>
+          <span class="choice-label">Papel</span>
+        </button>
+        <button class="choice-btn" data-choice="tesoura">
+          <span class="choice-emoji">✌️</span>
+          <span class="choice-label">Tesoura</span>
+        </button>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" id="reset-button">Resetar Placar</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">Arcade JS style · branco e vermelho</footer>
+  <script src="../js/jokenpo.js"></script>
+</body>
+</html>
