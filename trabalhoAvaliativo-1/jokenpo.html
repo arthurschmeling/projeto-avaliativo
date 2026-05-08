@@ -1,78 +1,117 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jokenpô | Arcade JS</title>
-  <link rel="stylesheet" href="../CSS/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jokenpô - Apostas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/jokenpo.css">
 </head>
-<body class="page-jokenpo">
-  <main>
-    <nav class="page-nav">
-      <a href="index.html">← Voltar</a>
-    </nav>
+<body>
+    <div class="container">
+        <!-- HEADER - Logo, Saldo e Estatísticas -->
+        <header class="header">
+            <div class="header-left">
+                <img src="assets/img/logo.png" alt="Logo Jokenpô" class="header-logo">
+            </div>
+            <div class="header-center">
+                <div class="balance-label">Saldo</div>
+                <div class="balance-value" id="balance">R$ 1000.00</div>
+            </div>
+            <div class="header-right">
+                <div class="header-stat">
+                    <div class="stat-label">Vitórias</div>
+                    <div class="stat-value" id="wins-header">0</div>
+                </div>
+                <div class="header-stat">
+                    <div class="stat-label">Empates</div>
+                    <div class="stat-value" id="draws-header">0</div>
+                </div>
+                <div class="header-stat">
+                    <div class="stat-label">Derrotas</div>
+                    <div class="stat-value" id="losses-header">0</div>
+                </div>
+            </div>
+        </header>
 
-    <header class="page-header">
-      <div>
-        <div class="brand-title">Jokenpô</div>
-        <div class="brand-subtitle">Pedra, Papel ou Tesoura</div>
-      </div>
-      <span class="badge">Rápido e direto</span>
-    </header>
+        <h1 class="page-title">JOKENPÔ</h1>
 
-    <div class="score-row">
-      <div class="stat">
-        <span class="stat-label">Vitórias</span>
-        <span class="stat-value" id="wins">0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Empates</span>
-        <span class="stat-value" id="draws">0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Derrotas</span>
-        <span class="stat-value" id="losses">0</span>
-      </div>
+        <!-- ÁREA PRINCIPAL DO JOGO -->
+        <main class="game-area">
+            <!-- CONTAINER DAS MÃOS -->
+            <div class="hands-container">
+                <!-- CPU - Esquerda -->
+                <div class="hand-wrapper cpu-wrapper">
+                    <div class="player-label">CPU</div>
+                    <div class="hand-container" id="cpu-hand">
+                        <img src="assets/img/pedraCPU.png" alt="Mão CPU" class="hand-img" id="cpu-hand-img">
+                    </div>
+                </div>
+
+                <!-- JOGADOR - Direita -->
+                <div class="hand-wrapper player-wrapper">
+                    <div class="player-label">VOCÊ</div>
+                    <div class="hand-container" id="player-hand">
+                        <img src="assets/img/pedraPlayer.png" alt="Mão Jogador" class="hand-img" id="player-hand-img">
+                    </div>
+                </div>
+            </div>
+
+            <!-- LINHA DOS CONTROLES -->
+            <div class="controls-row">
+                <!-- Opções de escolha -->
+                <div class="choices" id="player-choices">
+                    <button class="choice-btn" data-choice="pedra" title="Pedra">
+                        <img src="assets/img/pedra.png" alt="Pedra" class="choice-icon">
+                        <span>Pedra</span>
+                    </button>
+                    <button class="choice-btn" data-choice="papel" title="Papel">
+                        <img src="assets/img/papel.png" alt="Papel" class="choice-icon">
+                        <span>Papel</span>
+                    </button>
+                    <button class="choice-btn" data-choice="tesoura" title="Tesoura">
+                        <img src="assets/img/tesoura.png" alt="Tesoura" class="choice-icon">
+                        <span>Tesoura</span>
+                    </button>
+                </div>
+
+                <!-- CENTRO - Resultado e Aposta -->
+                <div class="center-section">
+                    <!-- Resultado -->
+                    <div class="result-container" id="result-container">
+                        <div class="result-text" id="result-text"></div>
+                        <div class="result-value" id="result-value"></div>
+                    </div>
+
+                    <!-- Controles de Aposta -->
+                    <div class="bet-controls" id="bet-controls">
+                        <div class="bet-current">
+                            <div class="bet-label">APOSTA ATUAL</div>
+                            <div class="bet-amount" id="current-bet">R$ 50.00</div>
+                        </div>
+                        <div class="bet-options">
+                            <button class="bet-option" data-amount="10">10</button>
+                            <button class="bet-option active" data-amount="50">50</button>
+                            <button class="bet-option" data-amount="100">100</button>
+                            <button class="bet-option" data-amount="250">250</button>
+                            <button class="bet-option" data-amount="500">500</button>
+                        </div>
+                        <button class="all-in-btn" id="all-in-btn">ALL IN</button>
+                    </div>
+
+                    <!-- Botão Jogar Novamente -->
+                    <button class="play-again-btn" id="play-again-btn">
+                        JOGAR NOVAMENTE
+                    </button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="panel">
-      <div class="score-row">
-        <div class="stat">
-          <span class="stat-label">Você</span>
-          <span class="stat-value" id="player-choice">❓</span>
-          <div class="hint-text" id="player-name"></div>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Computador</span>
-          <span class="stat-value" id="cpu-choice">❓</span>
-          <div class="hint-text" id="cpu-name"></div>
-        </div>
-      </div>
-
-      <div class="result-banner idle" id="result-banner">Escolha sua jogada abaixo</div>
-
-      <div class="choices">
-        <button class="choice-btn" data-choice="pedra">
-          <span class="choice-emoji">✊</span>
-          <span class="choice-label">Pedra</span>
-        </button>
-        <button class="choice-btn" data-choice="papel">
-          <span class="choice-emoji">✋</span>
-          <span class="choice-label">Papel</span>
-        </button>
-        <button class="choice-btn" data-choice="tesoura">
-          <span class="choice-emoji">✌️</span>
-          <span class="choice-label">Tesoura</span>
-        </button>
-      </div>
-
-      <div class="action-row">
-        <button class="btn btn-secondary" id="reset-button">Resetar Placar</button>
-      </div>
-    </div>
-  </main>
-
-  <footer class="footer">Arcade JS style · branco e vermelho</footer>
-  <script src="../js/jokenpo.js"></script>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="js/jokenpo.js"></script>
 </body>
 </html>

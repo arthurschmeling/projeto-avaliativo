@@ -1,96 +1,234 @@
 ﻿<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cara ou Coroa | Arcade JS</title>
-  <link rel="stylesheet" href="../CSS/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/main.css">
+    <title>Cara ou Coroa | X VIDEO-GAMES</title>
 </head>
-<body class="page-caraocoroa">
-  <main>
-    <nav class="page-nav">
-      <a href="index.html">← Voltar</a>
-    </nav>
 
-    <section class="game-hero">
-      <div>
-        <div class="brand-title">Cara ou Coroa</div>
-        <div class="brand-subtitle">Aposte, gire a moeda e veja se ganha a rodada.</div>
-      </div>
-      <div class="hero-tags">
-        <span class="badge badge-soft">Cassino</span>
-        <span class="badge badge-soft">Aposta livre</span>
-        <span class="badge badge-soft">Saldo negativo</span>
-      </div>
-    </section>
+<body>
+    <header class="header">
 
-    <section class="stats-grid">
-      <div class="stat-card stat-card--accent">
-        <span class="stat-label">Saldo atual</span>
-        <span class="stat-value" id="sc-balance">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Jogadas</span>
-        <span class="stat-value" id="sc-total">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Aposta mínima</span>
-        <span class="stat-value">10</span>
-      </div>
-    </section>
+        <div class="header-content">
 
-    <section class="game-grid">
-      <article class="game-panel">
-        <div class="coin-card">
-          <div class="dice-box coin-display">
-            <div id="coin" class="coin-face">
-              <div class="coin-side coin-front">
-                <img src="assets/img/cara1.png" alt="Cara" />
-              </div>
-              <div class="coin-side coin-back">
-                <img src="assets/img/coroa.png" alt="Coroa" />
-              </div>
+            <div class="logo">
+                <img src="assets/img/logo.png" alt="VIDEO-GAMES" class="brand-logo">
             </div>
-          </div>
+
+            <div class="header-actions">
+
+                <div class="header-stats">
+
+                    <div class="stat-item">
+                        <span class="label">Saldo</span>
+                        <span class="value">
+                            R$ <span id="saldo">100</span>
+                        </span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="label">Ganhos</span>
+                        <span class="value wins">
+                            R$ <span id="ganhos">0</span>
+                        </span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="label">Perdas</span>
+                        <span class="value losses">
+                            R$ <span id="perdas">0</span>
+                        </span>
+                    </div>
+
+                </div>
+
+                <button id="deposit-button" class="deposit-button">
+                    + Depositar
+                </button>
+
+            </div>
+
         </div>
 
-        <div class="result-banner idle" id="result-banner">Defina sua aposta e escolha Cara ou Coroa.</div>
-        <div class="hint-text" id="hint-text">Saldo negativo permitido. Use o +10 para aumentar a aposta.</div>
-      </article>
+    </header>
 
-      <aside class="sidebar-panel">
-        <div class="panel panel-tertiary">
-          <div class="panel-title">Aposta</div>
-          <div class="bet-row">
-            <button class="bet-control" id="bet-decrease">-10</button>
-            <input id="bet-amount" class="bet-input" type="number" min="10" step="10" value="10" />
-            <button class="bet-control" id="bet-increase">+10</button>
-          </div>
-          <div class="bet-note">Aposte com liberdade. Saldo negativo liberado para recuperar na próxima vitória.</div>
+    <main>
+
+        <div class="container">
+
+            <!-- MOEDA -->
+            <div class="game-panel">
+
+                <h2>Resultado</h2>
+
+                <div class="dice-table">
+
+                    <div class="player-card">
+
+                        <h3>Sua Escolha</h3>
+
+                        <img
+                            id="coin-player"
+                            src="assets/img/cara1.png"
+                            alt="Sua Escolha"
+                        >
+
+                        <p id="status-player"></p>
+
+                    </div>
+
+                    <div class="vs-text">VS</div>
+
+                    <div class="player-card">
+
+                        <h3>Resultado</h3>
+
+                        <img
+                            id="coin-resultado"
+                            src="assets/img/cara1.png"
+                            alt="Resultado"
+                        >
+
+                        <p id="status-resultado"></p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- APOSTAS -->
+            <div class="betting-panel">
+
+                <h2>Nova Aposta</h2>
+
+                <div class="betting-section">
+
+                    <div class="choose-number">
+
+                        <label>Escolha seu lado</label>
+
+                        <div class="number-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+
+                            <button class="number-btn" data-choice="cara" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <img src="assets/img/cara1.png" alt="Cara" style="width: 50px; height: 50px;">
+                                <span>Cara</span>
+                            </button>
+
+                            <button class="number-btn" data-choice="coroa" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <img src="assets/img/coroa.png" alt="Coroa" style="width: 50px; height: 50px;">
+                                <span>Coroa</span>
+                            </button>
+
+                        </div>
+
+                        <p id="chosen-number">
+                            Nenhum lado escolhido
+                        </p>
+
+                    </div>
+
+                    <div class="bet-amount">
+
+                        <label>Valor da Aposta</label>
+
+                        <div class="input-group">
+
+                            <input
+                                type="number"
+                                id="bet-input"
+                                placeholder="0.00"
+                            >
+
+                            <span class="currency">R$</span>
+
+                        </div>
+
+                        <div class="quick-bets">
+
+                            <button class="quick-bet-btn" data-amount="10">
+                                R$ 10
+                            </button>
+
+                            <button class="quick-bet-btn" data-amount="25">
+                                R$ 25
+                            </button>
+
+                            <button class="quick-bet-btn" data-amount="50">
+                                R$ 50
+                            </button>
+
+                            <button
+                                id="bet-all-button"
+                                class="quick-bet-btn all"
+                            >
+                                Tudo
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <button id="roll-button" class="roll-button">
+                    Lançar Moeda
+                </button>
+
+                <p id="message" class="message">
+                    Escolha um lado e faça sua aposta.
+                </p>
+
+                <div class="history-panel">
+                    <h3>Histórico de Apostas</h3>
+                    <div id="history-list" class="history-list">
+                        <p class="empty-state">Nenhuma aposta registrada ainda.</p>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="panel panel-tertiary choices-panel">
-          <div class="panel-title">Escolha seu lado</div>
-          <div class="choices">
-            <button class="choice-btn" id="btn-cara">
-              <span class="choice-icon"><img src="assets/img/cara1.png" alt="Cara" /></span>
-              <span class="choice-label">Cara</span>
-            </button>
-            <button class="choice-btn" id="btn-coroa">
-              <span class="choice-icon"><img src="assets/img/coroa.png" alt="Coroa" /></span>
-              <span class="choice-label">Coroa</span>
-            </button>
-          </div>
-        </div>
+    </main>
 
-        <div class="action-row">
-          <button class="btn btn-primary" id="btn-reset">Reiniciar Jogo</button>
+    <div id="deposit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Fazer Depósito</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="deposit-methods">
+                    <button class="method-btn selected" data-method="cartao">💳 Cartão</button>
+                    <button class="method-btn" data-method="pix">📱 PIX</button>
+                    <button class="method-btn" data-method="boleto">📋 Boleto</button>
+                </div>
+                <div class="deposit-form">
+                    <label>Valor do Depósito</label>
+                    <div class="amount-input-group">
+                        <input type="number" id="deposit-amount" placeholder="0.00" min="10" step="0.01">
+                        <span class="currency">R$</span>
+                    </div>
+                    <div class="quick-amounts">
+                        <button class="quick-amount" data-amount="50">R$ 50</button>
+                        <button class="quick-amount" data-amount="100">R$ 100</button>
+                        <button class="quick-amount" data-amount="250">R$ 250</button>
+                        <button class="quick-amount" data-amount="500">R$ 500</button>
+                    </div>
+                    <div class="deposit-info">
+                        <p><strong>Valor total:</strong> R$ <span id="total-amount">0.00</span></p>
+                        <p class="fee">Sem taxa de depósito</p>
+                    </div>
+                    <button id="confirm-deposit" class="confirm-btn">Confirmar Depósito</button>
+                    <p class="modal-message" id="modal-message"></p>
+                </div>
+            </div>
         </div>
-      </aside>
-    </section>
-  </main>
+    </div>
 
-  <footer class="footer">Arcade JS style · branco e vermelho</footer>
-  <script src="../js/caraocoroa.js"></script>
+    <script src="js/caraocoroa.js"></script>
 </body>
 </html>

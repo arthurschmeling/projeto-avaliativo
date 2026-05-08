@@ -1,139 +1,307 @@
-let state = {
-  balance: 500,
-  wins: 0,
-  losses: 0,
-  total: 0,
-  animating: false,
+const coinImages = {
+    cara: "assets/img/cara1.png",
+    coroa: "assets/img/coroa.png"
 };
 
-function sortearMoeda() {
-  return Math.random() < 0.5 ? 'cara' : 'coroa';
+// DOM Elements
+const playerImg = document.getElementById("coin-player");
+const resultImg = document.getElementById("coin-resultado");
+const statusPlayer = document.getElementById("status-player");
+const statusResult = document.getElementById("status-resultado");
+const message = document.getElementById("message");
+const rollButton = document.getElementById("roll-button");
+const choiceButtons = document.querySelectorAll("[data-choice]");
+const chosenChoiceDisplay = document.getElementById("chosen-number");
+const betInput = document.getElementById("bet-input");
+const betAllButton = document.getElementById("bet-all-button");
+const quickBetButtons = document.querySelectorAll(".quick-bet-btn:not(#bet-all-button)");
+const saldoDisplay = document.getElementById("saldo");
+const ganhosDisplay = document.getElementById("ganhos");
+const perdasDisplay = document.getElementById("perdas");
+const historyList = document.getElementById("history-list");
+
+// Game State
+let saldo = 100;
+let ganhos = 0;
+let perdas = 0;
+let chosenSide = null;
+let betAmount = 0;
+
+// Update saldo display
+function updateSaldoDisplay() {
+    saldoDisplay.textContent = saldo.toFixed(2);
+    ganhosDisplay.textContent = ganhos.toFixed(2);
+    perdasDisplay.textContent = perdas.toFixed(2);
+    betInput.max = Math.max(saldo, 0);
 }
 
-function atualizarPlacar() {
-  document.getElementById('sc-balance').textContent = state.balance.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    maximumFractionDigits: 0,
-  });
-  document.getElementById('sc-total').textContent = state.total;
+function addHistoryEntry(playerSide, resultSide, betAmount, won) {
+    if (!historyList) return;
+
+    const emptyText = historyList.querySelector(".empty-state");
+    if (emptyText) {
+        emptyText.remove();
+    }
+
+    const entry = document.createElement("div");
+    entry.className = "history-entry";
+    entry.innerHTML = `
+        <div class="history-entry-top ${won ? "win" : "loss"}">
+            <span>${won ? "Vitória" : "Derrota"}</span>
+            <span class="history-amount">R$ ${betAmount.toFixed(2)}</span>
+        </div>
+        <p>Escolhido: <strong>${playerSide.toUpperCase()}</strong> · Resultado: <strong>${resultSide.toUpperCase()}</strong></p>
+    `;
+    historyList.prepend(entry);
 }
 
-function atualizarAcoes() {
-  const bet = Number(document.getElementById('bet-amount').value) || 0;
-  document.getElementById('btn-cara').disabled = state.animating || bet < 10;
-  document.getElementById('btn-coroa').disabled = state.animating || bet < 10;
-}
-
-function exibirHint(text) {
-  document.getElementById('hint-text').textContent = text;
-}
-
-function animarMoeda(resultado) {
-  return new Promise(resolve => {
-    const coin = document.getElementById('coin');
-    const angFinal = resultado === 'cara' ? 1440 : 1620;
-    coin.style.transition = 'none';
-    coin.style.transform = 'rotateY(0deg)';
-    void coin.offsetWidth;
-    coin.style.transition = 'transform 1.2s ease-out';
-    coin.style.transform = `rotateY(${angFinal}deg)`;
-    setTimeout(resolve, 1300);
-  });
-}
-
-async function escolher(escolha) {
-  const betInput = document.getElementById('bet-amount');
-  const bet = Number(betInput.value);
-
-  if (state.animating) return;
-  if (bet < 10) {
-    exibirHint('A aposta mínima é de 10 créditos.');
-    return;
-  }
-
-  state.animating = true;
-  atualizarAcoes();
-  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById(`btn-${escolha}`).classList.add('selected');
-
-  const banner = document.getElementById('result-banner');
-  banner.className = 'result-banner idle';
-  banner.textContent = 'A MOEDA ESTÁ NO AR...';
-  exibirHint(`Você escolheu: ${escolha.toUpperCase()}. Boa sorte!`);
-
-  state.balance -= bet;
-  const resultado = sortearMoeda();
-  await animarMoeda(resultado);
-
-  const acertou = escolha === resultado;
-  state.total += 1;
-  if (acertou) {
-    state.wins += 1;
-    state.balance += bet * 2;
-  } else {
-    state.losses += 1;
-  }
-
-  atualizarPlacar();
-  if (acertou) {
-    banner.className = 'result-banner win';
-    banner.textContent = `ACERTOU! SAIU ${resultado.toUpperCase()}! Você ganhou ${bet} créditos.`;
-  } else {
-    banner.className = 'result-banner loss';
-    banner.textContent = `ERROU! SAIU ${resultado.toUpperCase()}! Você perdeu ${bet} créditos.`;
-  }
-
-  const accuracy = state.total ? Math.round((state.wins / state.total) * 100) : 0;
-  exibirHint(`Taxa de acerto: ${accuracy}% (${state.wins}/${state.total}).`);
-
-  setTimeout(() => {
-    document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  }, 800);
-
-  state.animating = false;
-  atualizarAcoes();
-}
-
-function resetar() {
-  state = {
-    balance: 500,
-    wins: 0,
-    losses: 0,
-    total: 0,
-    animating: false,
-  };
-
-  atualizarPlacar();
-  const coin = document.getElementById('coin');
-  coin.style.transition = 'transform 0.3s';
-  coin.style.transform = 'rotateY(0deg)';
-  const banner = document.getElementById('result-banner');
-  banner.className = 'result-banner idle';
-  banner.textContent = 'Defina sua aposta e escolha Cara ou Coroa.';
-  exibirHint('Saldo negativo é permitido. Ajuste a aposta e jogue.');
-  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-  atualizarAcoes();
-}
-
-document.getElementById('btn-cara').addEventListener('click', () => escolher('cara'));
-document.getElementById('btn-coroa').addEventListener('click', () => escolher('coroa'));
-document.getElementById('btn-reset').addEventListener('click', resetar);
-document.getElementById('bet-amount').addEventListener('input', atualizarAcoes);
-document.getElementById('bet-decrease').addEventListener('click', () => {
-  const betInput = document.getElementById('bet-amount');
-  let value = Number(betInput.value) || 0;
-  value = Math.max(10, value - 10);
-  betInput.value = value;
-  atualizarAcoes();
-});
-document.getElementById('bet-increase').addEventListener('click', () => {
-  const betInput = document.getElementById('bet-amount');
-  let value = Number(betInput.value) || 0;
-  value += 10;
-  betInput.value = value;
-  atualizarAcoes();
+// Side selection
+choiceButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        choiceButtons.forEach(btn => btn.classList.remove("selected"));
+        this.classList.add("selected");
+        chosenSide = this.dataset.choice;
+        chosenChoiceDisplay.textContent = `Lado escolhido: ${chosenSide.toUpperCase()}`;
+    });
 });
 
-atualizarPlacar();
-atualizarAcoes();
+// Bet all button
+quickBetButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        const amount = parseFloat(this.dataset.amount);
+        if (amount) {
+            betInput.value = amount;
+            quickBetButtons.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+        }
+    });
+});
+
+betAllButton.addEventListener("click", function() {
+    betInput.value = Math.max(saldo, 0);
+    quickBetButtons.forEach(btn => btn.classList.remove("active"));
+});
+
+// Flip coin function with biased probability against the player
+function sortearMoeda(chosenSide) {
+    const chance = Math.random();
+    if (chosenSide === 'cara') {
+        return chance < 0.4 ? 'cara' : 'coroa';
+    }
+    if (chosenSide === 'coroa') {
+        return chance < 0.4 ? 'coroa' : 'cara';
+    }
+    return Math.random() < 0.5 ? 'cara' : 'coroa';
+}
+
+// Update coin images
+function updateCoinImage(imgElement, side) {
+    imgElement.src = coinImages[side];
+    imgElement.alt = `Moeda mostrando ${side}`;
+}
+
+// Play round
+function playRound() {
+    // Validate inputs
+    if (chosenSide === null) {
+        message.textContent = "Escolha um lado (Cara ou Coroa)!";
+        return;
+    }
+    
+    betAmount = parseFloat(betInput.value);
+    
+    if (!betAmount || betAmount <= 0) {
+        message.textContent = "Digite um valor para apostar!";
+        return;
+    }
+    
+    if (betAmount > saldo) {
+        message.textContent = "Você não tem saldo suficiente!";
+        return;
+    }
+    
+    // Disable button during rolling
+    rollButton.disabled = true;
+    choiceButtons.forEach(btn => btn.disabled = true);
+    betInput.disabled = true;
+    betAllButton.disabled = true;
+    
+    // Prepare coin display and start animation
+    updateCoinImage(playerImg, chosenSide);
+    playerImg.classList.add("rolling");
+    resultImg.classList.add("rolling");
+
+    const resultSide = sortearMoeda(chosenSide);
+
+    // Simulate rolling time
+    setTimeout(() => {
+        // Stop animation
+        playerImg.classList.remove("rolling");
+        resultImg.classList.remove("rolling");
+        
+        // Reset classes
+        playerImg.classList.remove("winner", "loser");
+        resultImg.classList.remove("winner", "loser");
+        
+        updateCoinImage(playerImg, chosenSide);
+        updateCoinImage(resultImg, resultSide);
+
+        // Check if player guessed correctly
+        if (chosenSide === resultSide) {
+            // Player won
+            saldo = saldo + betAmount;
+            ganhos += betAmount;
+            playerImg.classList.add("winner");
+            resultImg.classList.add("loser");
+            statusPlayer.textContent = `Você acertou! +R$ ${betAmount.toFixed(2)}`;
+            statusResult.textContent = "Acertou!";
+            message.textContent = `🎉 Parabéns! Você ganhou R$ ${betAmount.toFixed(2)}`;
+            addHistoryEntry(chosenSide, resultSide, betAmount, true);
+        } else {
+            // Player lost
+            saldo = saldo - betAmount;
+            perdas += betAmount;
+            playerImg.classList.add("loser");
+            resultImg.classList.add("winner");
+            statusPlayer.textContent = `Errou! -R$ ${betAmount.toFixed(2)}`;
+            statusResult.textContent = `${resultSide.toUpperCase()}`;
+            addHistoryEntry(chosenSide, resultSide, betAmount, false);
+            
+            if (saldo <= 0) {
+                saldo = 0;
+                message.textContent = "💀 Seu saldo zerou. Deposite para continuar jogando.";
+            } else {
+                message.textContent = `😢 Você perdeu R$ ${betAmount.toFixed(2)}. O resultado foi ${resultSide.toUpperCase()}`;
+            }
+        }
+        
+        updateSaldoDisplay();
+        
+        // Re-enable controls
+        rollButton.disabled = false;
+        choiceButtons.forEach(btn => btn.disabled = false);
+        betInput.disabled = false;
+        betAllButton.disabled = false;
+        
+        // Reset quick bet selection
+        quickBetButtons.forEach(btn => btn.classList.remove("active"));
+        
+        // Reset bet input
+        betInput.value = "";
+    }, 800);
+}
+
+rollButton.addEventListener("click", playRound);
+
+// DEPOSIT FUNCTIONALITY
+const depositButton = document.getElementById("deposit-button");
+const depositModal = document.getElementById("deposit-modal");
+const closeModal = document.getElementById("close-modal");
+const methodButtons = document.querySelectorAll(".method-btn");
+const depositAmountInput = document.getElementById("deposit-amount");
+const quickAmountButtons = document.querySelectorAll(".quick-amount");
+const confirmDepositBtn = document.getElementById("confirm-deposit");
+const totalAmountDisplay = document.getElementById("total-amount");
+const modalMessage = document.getElementById("modal-message");
+let selectedMethod = "cartao";
+
+// Open modal
+depositButton.addEventListener("click", function() {
+    depositModal.classList.add("open");
+    depositAmountInput.value = "";
+    updateTotalAmount();
+});
+
+// Close modal
+closeModal.addEventListener("click", function() {
+    depositModal.classList.remove("open");
+    modalMessage.classList.remove("success", "error");
+    modalMessage.textContent = "";
+});
+
+// Close modal when clicking outside
+depositModal.addEventListener("click", function(e) {
+    if (e.target === depositModal) {
+        depositModal.classList.remove("open");
+        modalMessage.classList.remove("success", "error");
+    }
+});
+
+// Select payment method
+methodButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        methodButtons.forEach(btn => btn.classList.remove("selected"));
+        this.classList.add("selected");
+        selectedMethod = this.dataset.method;
+    });
+});
+
+// Quick amount buttons
+quickAmountButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        const amount = parseFloat(this.dataset.amount);
+        depositAmountInput.value = amount.toFixed(2);
+        
+        quickAmountButtons.forEach(btn => btn.classList.remove("active"));
+        this.classList.add("active");
+        
+        updateTotalAmount();
+    });
+});
+
+// Update total amount display
+function updateTotalAmount() {
+    const amount = parseFloat(depositAmountInput.value) || 0;
+    totalAmountDisplay.textContent = amount.toFixed(2);
+}
+
+// Deposit amount input
+depositAmountInput.addEventListener("input", function() {
+    quickAmountButtons.forEach(btn => btn.classList.remove("active"));
+    updateTotalAmount();
+});
+
+// Confirm deposit
+confirmDepositBtn.addEventListener("click", function() {
+    const amount = parseFloat(depositAmountInput.value);
+    
+    if (!amount || amount < 10) {
+        showModalMessage("O depósito mínimo é R$ 10.00", "error");
+        return;
+    }
+    
+    if (amount > 10000) {
+        showModalMessage("O depósito máximo é R$ 10.000.00", "error");
+        return;
+    }
+    
+    // Simulate deposit processing
+    confirmDepositBtn.disabled = true;
+    confirmDepositBtn.textContent = "Processando...";
+    
+    setTimeout(() => {
+        saldo += amount;
+        updateSaldoDisplay();
+        
+        showModalMessage(`✓ Depósito de R$ ${amount.toFixed(2)} realizado com sucesso!`, "success");
+        
+        setTimeout(() => {
+            depositModal.classList.remove("open");
+            depositAmountInput.value = "";
+            totalAmountDisplay.textContent = "0.00";
+            confirmDepositBtn.disabled = false;
+            confirmDepositBtn.textContent = "Confirmar Depósito";
+            modalMessage.classList.remove("success", "error");
+            modalMessage.textContent = "";
+        }, 1500);
+    }, 1000);
+});
+
+function showModalMessage(text, type) {
+    modalMessage.textContent = text;
+    modalMessage.classList.remove("success", "error");
+    modalMessage.classList.add(type);
+}
+
+// Initialize
+updateSaldoDisplay();
