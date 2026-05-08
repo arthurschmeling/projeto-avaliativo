@@ -9,9 +9,7 @@ const diceImages = [
 
 // DOM Elements
 const playerImg = document.getElementById("dice-player");
-const computerImg = document.getElementById("dice-computador");
 const statusPlayer = document.getElementById("status-player");
-const statusComputer = document.getElementById("status-computador");
 const message = document.getElementById("message");
 const rollButton = document.getElementById("roll-button");
 const numberButtons = document.querySelectorAll(".number-btn");
@@ -23,7 +21,7 @@ const saldoDisplay = document.getElementById("saldo");
 const historyList = document.getElementById("history-list");
 
 // Game State
-let saldo = 100;
+let saldo = 1000;
 let chosenNumber = null;
 let betAmount = 0;
 
@@ -33,7 +31,7 @@ function updateSaldoDisplay() {
     betInput.max = saldo;
 }
 
-function addHistoryEntry(playerValue, computerValue, betAmount, won) {
+function addHistoryEntry(chosenNumber, rolledValue, betAmount, won) {
     if (!historyList) return;
 
     const emptyText = historyList.querySelector(".empty-state");
@@ -48,7 +46,7 @@ function addHistoryEntry(playerValue, computerValue, betAmount, won) {
             <span>${won ? "Vitória" : "Derrota"}</span>
             <span class="history-amount">R$ ${betAmount}</span>
         </div>
-        <p>Escolhido: <strong>${chosenNumber}</strong> · Seu dado: <strong>${playerValue}</strong> · Sorteado: <strong>${computerValue}</strong></p>
+        <p>Escolhido: <strong>${chosenNumber}</strong> · Número sorteado: <strong>${rolledValue}</strong></p>
     `;
     historyList.prepend(entry);
 }
@@ -124,56 +122,46 @@ function playRound() {
     
     // Start rolling animation
     playerImg.classList.add("rolling");
-    computerImg.classList.add("rolling");
 
     // Alternate dice faces during animation
     const rollInterval = setInterval(() => {
         updateDiceImages(playerImg, rollDie());
-        updateDiceImages(computerImg, rollDie());
     }, 100);
 
     // Simulate rolling time
     setTimeout(() => {
         clearInterval(rollInterval);
         
-        const playerValue = rollDie();
-        const computerValue = rollDie();
+        const rolledValue = rollDie();
         
         // Stop animation
         playerImg.classList.remove("rolling");
-        computerImg.classList.remove("rolling");
         
         // Reset classes
         playerImg.classList.remove("winner", "loser");
-        computerImg.classList.remove("winner", "loser");
         
-        updateDiceImages(playerImg, playerValue);
-        updateDiceImages(computerImg, computerValue);
+        updateDiceImages(playerImg, rolledValue);
 
         // Check if player guessed correctly
-        if (playerValue === chosenNumber) {
+        if (rolledValue === chosenNumber) {
             // Player won
-            saldo = saldo + betAmount;
+            saldo = saldo + betAmount * 2.3;
             playerImg.classList.add("winner");
-            computerImg.classList.add("loser");
             statusPlayer.textContent = `Você acertou! +R$ ${betAmount}`;
-            statusComputer.textContent = "Errou!";
             message.textContent = `🎉 Parabéns! Você ganhou R$ ${betAmount}`;
-            addHistoryEntry(playerValue, computerValue, betAmount, true);
+            addHistoryEntry(chosenNumber, rolledValue, betAmount, true);
         } else {
             // Player lost
             saldo = saldo - betAmount;
             playerImg.classList.add("loser");
-            computerImg.classList.add("winner");
-            statusPlayer.textContent = `Errou! -R$ ${betAmount}`;
-            statusComputer.textContent = `Número: ${computerValue}`;
-            addHistoryEntry(playerValue, computerValue, betAmount, false);
+            statusPlayer.textContent = `Errou! -R$ ${betAmount}. Número: ${rolledValue}`;
+            addHistoryEntry(chosenNumber, rolledValue, betAmount, false);
             
             if (saldo <= 0) {
                 saldo = 0;
                 message.textContent = "💀 Seu saldo zerou. Deposite para continuar jogando.";
             } else {
-                message.textContent = `😢 Você perdeu R$ ${betAmount}. O número foi ${computerValue}`;
+                message.textContent = `😢 Você perdeu R$ ${betAmount}. O número foi ${rolledValue}`;
             }
         }
         
@@ -208,11 +196,13 @@ const modalMessage = document.getElementById("modal-message");
 let selectedMethod = "cartao";
 
 // Open modal
-depositButton.addEventListener("click", function() {
-    depositModal.classList.add("open");
-    depositAmountInput.value = "";
-    updateTotalAmount();
-});
+if (depositButton) {
+    depositButton.addEventListener("click", function() {
+        depositModal.classList.add("open");
+        depositAmountInput.value = "";
+        updateTotalAmount();
+    });
+}
 
 // Close modal
 closeModal.addEventListener("click", function() {

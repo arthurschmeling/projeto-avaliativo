@@ -60,7 +60,7 @@ body {
 
 .header-stats {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 

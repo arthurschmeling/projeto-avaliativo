@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/main.css">
+    <link rel="stylesheet" href="CSS/style.css">
     <title>X VIDEO-GAMES</title>
 </head>
 
@@ -15,17 +15,18 @@
         <div class="header-content">
 
             <div class="logo">
-                <img src="assets/img/logo.png" alt="VIDEO-GAMES" class="brand-logo">
+                <a href="index.html">
+                    <img src="assets/img/logo.png" alt="VIDEO-GAMES" class="brand-logo">
+                </a>
             </div>
 
             <div class="header-actions">
-
                 <div class="header-stats">
 
                     <div class="stat-item">
                         <span class="label">Saldo</span>
                         <span class="value">
-                            R$ <span id="saldo">100</span>
+                            R$ <span id="saldo">1000</span>
                         </span>
                     </div>
 
@@ -44,10 +45,6 @@
                     </div>
 
                 </div>
-
-                <button id="deposit-button" class="deposit-button">
-                    + Depositar
-                </button>
 
             </div>
 
@@ -68,31 +65,15 @@
 
                     <div class="player-card">
 
-                        <h3>Seu Número</h3>
+                        <h3>Dado Sorteado</h3>
 
                         <img
                             id="dice-player"
                             src="assets/img/png1.com.png"
-                            alt="Dado Jogador"
+                            alt="Dado Sorteado"
                         >
 
                         <p id="status-player"></p>
-
-                    </div>
-
-                    <div class="vs-text">VS</div>
-
-                    <div class="player-card">
-
-                        <h3>Número Sorteado</h3>
-
-                        <img
-                            id="dice-computador"
-                            src="assets/img/png1.com.png"
-                            alt="Dado Computador"
-                        >
-
-                        <p id="status-computador"></p>
 
                     </div>
 

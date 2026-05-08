@@ -15,7 +15,7 @@
 
 body {
     font-family: 'Poppins', 'Roboto', sans-serif;
-    background-color: #434343;
+    background-color:  rgb(37, 31, 31);
     color: var(--color-text);
     min-height: 100vh;
     overflow-x: hidden;
@@ -92,6 +92,25 @@ body {
     gap: 1rem;
 }
 
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: var(--color-primary);
+    color: #111;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.back-button:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+
 .header-stat {
     display: flex;
     flex-direction: column;
@@ -155,7 +174,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('IMG/background.png');
+    background-image: url('background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

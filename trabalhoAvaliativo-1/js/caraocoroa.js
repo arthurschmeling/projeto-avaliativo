@@ -5,9 +5,7 @@ const coinImages = {
 
 // DOM Elements
 const playerImg = document.getElementById("coin-player");
-const resultImg = document.getElementById("coin-resultado");
 const statusPlayer = document.getElementById("status-player");
-const statusResult = document.getElementById("status-resultado");
 const message = document.getElementById("message");
 const rollButton = document.getElementById("roll-button");
 const choiceButtons = document.querySelectorAll("[data-choice]");
@@ -21,7 +19,7 @@ const perdasDisplay = document.getElementById("perdas");
 const historyList = document.getElementById("history-list");
 
 // Game State
-let saldo = 100;
+let saldo = 1000;
 let ganhos = 0;
 let perdas = 0;
 let chosenSide = null;
@@ -129,7 +127,6 @@ function playRound() {
     // Prepare coin display and start animation
     updateCoinImage(playerImg, chosenSide);
     playerImg.classList.add("rolling");
-    resultImg.classList.add("rolling");
 
     const resultSide = sortearMoeda(chosenSide);
 
@@ -137,14 +134,11 @@ function playRound() {
     setTimeout(() => {
         // Stop animation
         playerImg.classList.remove("rolling");
-        resultImg.classList.remove("rolling");
         
         // Reset classes
         playerImg.classList.remove("winner", "loser");
-        resultImg.classList.remove("winner", "loser");
         
-        updateCoinImage(playerImg, chosenSide);
-        updateCoinImage(resultImg, resultSide);
+        updateCoinImage(playerImg, resultSide);
 
         // Check if player guessed correctly
         if (chosenSide === resultSide) {
@@ -152,19 +146,15 @@ function playRound() {
             saldo = saldo + betAmount;
             ganhos += betAmount;
             playerImg.classList.add("winner");
-            resultImg.classList.add("loser");
             statusPlayer.textContent = `Você acertou! +R$ ${betAmount.toFixed(2)}`;
-            statusResult.textContent = "Acertou!";
-            message.textContent = `🎉 Parabéns! Você ganhou R$ ${betAmount.toFixed(2)}`;
+            message.textContent = `🎉 Parabéns! Você ganhou R$ ${betAmount.toFixed(2)}. Resultado: ${resultSide.toUpperCase()}`;
             addHistoryEntry(chosenSide, resultSide, betAmount, true);
         } else {
             // Player lost
             saldo = saldo - betAmount;
             perdas += betAmount;
             playerImg.classList.add("loser");
-            resultImg.classList.add("winner");
-            statusPlayer.textContent = `Errou! -R$ ${betAmount.toFixed(2)}`;
-            statusResult.textContent = `${resultSide.toUpperCase()}`;
+            statusPlayer.textContent = `Errou! -R$ ${betAmount.toFixed(2)}. Resultado: ${resultSide.toUpperCase()}`;
             addHistoryEntry(chosenSide, resultSide, betAmount, false);
             
             if (saldo <= 0) {

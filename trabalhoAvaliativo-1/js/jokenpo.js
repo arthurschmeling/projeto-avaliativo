@@ -196,16 +196,16 @@ function playGame(playerChoice) {
     void elements.cpuHand.offsetWidth;
 
     // Começa com pedra em ambas as mãos
-    elements.playerHandImg.src = 'IMG/pedraPlayer.png';
-    elements.cpuHandImg.src = 'IMG/pedraCPU.png';
+    elements.playerHandImg.src = 'assets/img/pedraPlayer.png';
+    elements.cpuHandImg.src = 'assets/img/pedraCPU.png';
 
     // Inicia animação
     elements.playerHand.classList.add('shake');
     elements.cpuHand.classList.add('shake');
 
     // Muda imagem no meio da animação (400ms)
+    const cpuChoice = getCpuChoice();
     setTimeout(() => {
-        const cpuChoice = getCpuChoice();
         elements.cpuHandImg.src = choiceImages[cpuChoice].cpu;
         elements.playerHandImg.src = choiceImages[playerChoice].player;
     }, 400);
@@ -215,7 +215,6 @@ function playGame(playerChoice) {
         elements.playerHand.classList.remove('shake');
         elements.cpuHand.classList.remove('shake');
 
-        const cpuChoice = getCpuChoice();
         const result = getWinner(playerChoice, cpuChoice);
         
         if (result === 'win') {
