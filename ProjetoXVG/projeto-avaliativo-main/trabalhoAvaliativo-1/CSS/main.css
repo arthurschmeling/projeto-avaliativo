@@ -1,0 +1,183 @@
+:root{
+  --bg:#1a1a1d;
+  --bg-2:#222227;
+  --surface:#2a2a30;
+  --surface-2:#33333a;
+  --border:#3a3a42;
+  --text:#ececef;
+  --muted:#9a9aa3;
+  --red:#e10f24;
+  --red-glow:#ff2436;
+  --red-deep:#a80c1c;
+  --gold:#f5c451;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:radial-gradient(1200px 600px at 80% -10%, rgba(225,15,36,.18), transparent 60%),
+             radial-gradient(800px 500px at -10% 100%, rgba(225,15,36,.10), transparent 60%),
+             var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+
+/* ===== Topbar ===== */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 32px;
+  background:linear-gradient(180deg, #161618, #1c1c20);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;letter-spacing:.5px}
+.logo-mark{
+  width:36px;height:36px;border-radius:8px;
+  background:linear-gradient(135deg,var(--red),var(--red-deep));
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 0 16px rgba(225,15,36,.5);
+}
+.brand-logo{width:240px;height:auto;display:block}
+.accent{color:var(--red);}
+.nav{display:flex;gap:28px}
+.nav a{
+  color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;
+  padding:8px 4px;border-bottom:2px solid transparent;transition:.2s;
+}
+.nav a:hover{color:var(--text)}
+.nav a.active{color:#fff;border-color:var(--red)}
+
+.balance{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:8px 8px 8px 16px;border-radius:12px;
+}
+.balance-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.balance-value{font-weight:800;color:var(--gold);font-size:16px;margin-right:4px}
+.btn-deposit{
+  background:linear-gradient(135deg,var(--red),var(--red-deep));
+  color:#fff;border:0;padding:8px 16px;border-radius:8px;
+  font-weight:700;cursor:pointer;font-size:13px;
+  box-shadow:0 4px 12px rgba(225,15,36,.35);transition:.2s;
+}
+.btn-deposit:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(225,15,36,.5)}
+
+/* ===== Container/Hero ===== */
+.container{flex:1;max-width:1200px;width:100%;margin:0 auto;padding:48px 32px}
+.hero{text-align:center;margin-bottom:48px}
+.hero h1{font-size:44px;font-weight:800;letter-spacing:-.5px}
+.hero p{color:var(--muted);margin-top:10px;font-size:16px}
+
+/* ===== Games ===== */
+.games{
+  display:grid;gap:24px;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+}
+.game-card{
+  background:linear-gradient(180deg,var(--surface),var(--bg-2));
+  border:1px solid var(--border);
+  border-radius:16px;padding:24px;text-align:center;
+  transition:.25s;position:relative;overflow:hidden;
+}
+.game-card::before{
+  content:"";position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(135deg, rgba(225,15,36,.0), rgba(225,15,36,.0));
+  transition:.3s;pointer-events:none;
+}
+.game-card:hover{transform:translateY(-6px);border-color:var(--red);box-shadow:0 18px 40px rgba(225,15,36,.18)}
+.game-card:hover::before{background:linear-gradient(135deg, rgba(225,15,36,.08), transparent)}
+.game-card h2{margin:18px 0 6px;font-size:20px}
+.game-card p{color:var(--muted);font-size:14px;margin-bottom:20px;min-height:42px}
+
+.game-logo{
+  height:160px;border-radius:12px;
+  background:linear-gradient(135deg,#1d1d22,#101013);
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  font-weight:900;letter-spacing:2px;
+}
+.game-logo span{font-size:22px;color:#fff;margin-top:8px}
+.game-logo small{color:var(--gold);font-size:12px;letter-spacing:3px;margin-top:2px}
+
+/* Roulette */
+.logo-roulette .ring{
+  width:70px;height:70px;border-radius:50%;
+  background:conic-gradient(var(--red) 0 25%, #111 0 50%, var(--red) 0 75%, #111 0);
+  border:3px solid var(--gold);
+  box-shadow:0 0 20px rgba(225,15,36,.5);
+  animation:spin 8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Slots */
+.logo-slots .reels{display:flex;gap:6px}
+.logo-slots .reels span{
+  width:34px;height:46px;border-radius:6px;
+  background:#0e0e10;color:var(--gold);
+  display:grid;place-items:center;font-size:22px;font-weight:900;
+  border:2px solid var(--red);
+  box-shadow:inset 0 0 8px rgba(225,15,36,.4);
+}
+
+/* Blackjack */
+.logo-blackjack .cards{display:flex;gap:8px}
+.logo-blackjack .cards span{
+  width:42px;height:60px;border-radius:6px;background:#fff;color:#111;
+  display:grid;place-items:center;font-weight:900;font-size:22px;
+  box-shadow:0 4px 10px rgba(0,0,0,.5);
+}
+.logo-blackjack .card-a{transform:rotate(-8deg);color:var(--red)}
+.logo-blackjack .card-k{transform:rotate(8deg)}
+
+.btn-play{
+  width:100%;
+  background:linear-gradient(135deg,var(--red),var(--red-deep));
+  color:#fff;border:0;padding:14px;border-radius:10px;
+  font-weight:800;font-size:15px;cursor:pointer;letter-spacing:.5px;
+  text-transform:uppercase;
+  box-shadow:0 6px 18px rgba(225,15,36,.35);transition:.2s;
+}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(225,15,36,.55);background:linear-gradient(135deg,var(--red-glow),var(--red))}
+.btn-play:active{transform:translateY(0)}
+
+/* ===== Footer ===== */
+.footer{
+  margin-top:64px;
+  background:linear-gradient(180deg,#141416,#101012);
+  border-top:1px solid var(--border);
+  padding:48px 32px 20px;
+}
+.footer-grid{
+  max-width:1200px;margin:0 auto;
+  display:grid;gap:32px;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+}
+.footer h3{font-size:22px;margin-bottom:8px}
+.footer h4{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);margin-bottom:14px}
+.footer p{color:var(--muted);font-size:13px}
+.footer a{display:block;color:var(--muted);text-decoration:none;font-size:14px;padding:4px 0;transition:.2s}
+.footer a:hover{color:var(--red)}
+.pay-badges{display:flex;flex-wrap:wrap;gap:8px}
+.pay-badges span{
+  background:var(--surface);border:1px solid var(--border);
+  padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;color:var(--muted);
+}
+.footer-bottom{
+  max-width:1200px;margin:32px auto 0;padding-top:20px;
+  border-top:1px solid var(--border);
+  text-align:center;color:var(--muted);font-size:12px;
+}
+
+@media(max-width:720px){
+  .nav{display:none}
+  .topbar{padding:8px 12px}
+  .balance{padding:6px 6px 6px 12px;gap:8px}
+  .balance-value{font-size:14px}
+  .hero h1{font-size:32px}
+  .container{padding:32px 16px}
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RedVault Casino — Jogos</title>
+<link rel="stylesheet" href="CSS/main.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">
+      <img src="assets/img/logo.png" alt="RedVault" class="brand-logo"/>
+    </div>
+    <nav class="nav">
+      <a href="#" class="active">Jogos</a>
+    </nav>
+    <div class="balance" title="Seu saldo">
+      <span class="balance-label">Saldo</span>
+      <span class="balance-value">R$ <span id="balance">1.250,00</span></span>
+      <button id="deposit" class="btn-deposit">Depositar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Bem-vindo ao <span class="accent">RedVault</span></h1>
+      <p>Os jogos mais quentes do cassino, prontos para você girar.</p>
+    </section>
+
+    <section class="games">
+      <article class="game-card">
+        <div class="game-logo logo-roulette">
+          <div class="ring"></div>
+          <span>ROLETA</span>
+          <small>Royale</small>
+        </div>
+        <h2>Roleta Royale</h2>
+        <p>Aposte no vermelho, no preto ou tente a sorte no número certeiro.</p>
+        <button class="btn-play" data-game="Roleta Royale">Jogar Agora</button>
+      </article>
+
+      <article class="game-card">
+        <div class="game-logo logo-slots">
+          <div class="reels"><span>7</span><span>★</span><span>7</span></div>
+          <span>MEGA</span>
+          <small>Slots</small>
+        </div>
+        <h2>Mega Slots</h2>
+        <p>Rolos giratórios, jackpots progressivos e bônus a cada giro.</p>
+        <button class="btn-play" data-game="Mega Slots">Jogar Agora</button>
+      </article>
+
+      <article class="game-card">
+        <div class="game-logo logo-blackjack">
+          <div class="cards"><span class="card-a">A</span><span class="card-k">K</span></div>
+          <span>BLACK</span>
+          <small>Jack 21</small>
+        </div>
+        <h2>BlackJack 21</h2>
+        <p>Encare o dealer e chegue aos 21 antes que a casa vença.</p>
+        <button class="btn-play" data-game="BlackJack 21">Jogar Agora</button>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>Red<span class="accent">Vault</span></h3>
+        <p>Jogue com responsabilidade. +18 anos.</p>
+      </div>
+      <div>
+        <h4>Cassino</h4>
+        <a href="#">Slots</a>
+        <a href="#">Mesa</a>
+        <a href="#">Ao vivo</a>
+      </div>
+      <div>
+        <h4>Suporte</h4>
+        <a href="#">Central de Ajuda</a>
+        <a href="#">Contato</a>
+        <a href="#">Termos</a>
+      </div>
+      <div>
+        <h4>Pagamentos</h4>
+        <div class="pay-badges">
+          <span>PIX</span><span>VISA</span><span>MC</span><span>BTC</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 RedVault Casino. Todos os direitos reservados.
+    </div>
+  </footer>
+
+  <script src="js/index.js"></script>
+</body>
+</html>
