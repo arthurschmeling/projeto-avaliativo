@@ -19,11 +19,21 @@ const betAllButton = document.getElementById("bet-all-button");
 const quickBetButtons = document.querySelectorAll(".quick-bet-btn:not(#bet-all-button)");
 const saldoDisplay = document.getElementById("saldo");
 const historyList = document.getElementById("history-list");
+const agiotaOverlay = document.getElementById("agiota-overlay");
+const agiotaImage = document.getElementById("agiota-image");
+const agiotaDialogue = document.getElementById("agiota-dialogue");
+const agiotaOptions = document.getElementById("agiota-options");
+const agiotaAccept = document.getElementById("agiota-accept");
+const agiotaReject = document.getElementById("agiota-reject");
+const gameOverOverlay = document.getElementById("game-over-overlay");
+const restartBtn = document.getElementById("restart-btn");
 
 // Game State
 let saldo = 1000;
 let chosenNumber = null;
 let betAmount = 0;
+let emprestimo = false;
+let rodadas = 0;
 
 // Update saldo display
 function updateSaldoDisplay() {
@@ -49,6 +59,67 @@ function addHistoryEntry(chosenNumber, rolledValue, betAmount, won) {
         <p>Escolhido: <strong>${chosenNumber}</strong> · Número sorteado: <strong>${rolledValue}</strong></p>
     `;
     historyList.prepend(entry);
+}
+
+// ============================================
+// FUNÇÕES AUXILIARES PARA AGIOTA
+// ============================================
+
+function loadFromStorage() {
+    const balance = localStorage.getItem('saldo');
+    const emp = localStorage.getItem('emprestimo') === 'true';
+    const rod = parseInt(localStorage.getItem('rodadas')) || 0;
+    if (balance !== null) saldo = parseFloat(balance);
+    emprestimo = emp;
+    rodadas = rod;
+}
+
+function saveToStorage() {
+    localStorage.setItem('saldo', saldo);
+    localStorage.setItem('emprestimo', emprestimo);
+    localStorage.setItem('rodadas', rodadas);
+}
+
+function typewriterEffect(element, text, speed = 50) {
+    element.textContent = '';
+    let i = 0;
+    const timer = setInterval(() => {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(timer);
+        }
+    }, speed);
+}
+
+function showAgiota(imageSrc, dialogue, options = true) {
+    agiotaImage.src = imageSrc;
+    agiotaOverlay.classList.add('show');
+    typewriterEffect(agiotaDialogue, dialogue);
+    if (options) {
+        agiotaOptions.style.display = 'flex';
+    } else {
+        agiotaOptions.style.display = 'none';
+    }
+}
+
+function hideAgiota() {
+    agiotaOverlay.classList.remove('show');
+}
+
+function showGameOver() {
+    gameOverOverlay.classList.add('show');
+}
+
+function checkAgiota() {
+    if (saldo <= 0 && !emprestimo) {
+        showAgiota('assets/img/arthurDinherio.png', 'O meu acabou o dinheiro ai cupixa?, eu te empresto uma graninha se tu quiser');
+    } else if (emprestimo && rodadas >= 10) {
+        showAgiota('assets/img/arthurDinherio.png', 'Eai cupixa ta com meu dinheiro?');
+        agiotaAccept.textContent = 'Dar o Dinheiro';
+        agiotaReject.textContent = 'Não Dar o Dinheiro';
+    }
 }
 
 // Number selection
@@ -165,6 +236,8 @@ function playRound() {
             }
         }
         
+        rodadas += 1;
+        saveToStorage();
         updateSaldoDisplay();
         
         // Re-enable controls
@@ -178,6 +251,9 @@ function playRound() {
         
         // Reset bet input
         betInput.value = "";
+        
+        // Verificar agiota após o jogo
+        setTimeout(checkAgiota, 1000);
     }, 800);
 }
 
@@ -295,5 +371,90 @@ function showModalMessage(text, type) {
     modalMessage.classList.add(type);
 }
 
+// Event listeners para agiota
+agiotaAccept.addEventListener('click', () => {
+    hideAgiota();
+    if (!emprestimo) {
+        // Aceitar empréstimo
+        showAgiota('assets/img/arthurDinherio.png', 'Toma aqui entao cupixa, mas o seguinte hein é melhor tu me pagar arrombado se nao.....', false);
+        setTimeout(() => {
+            hideAgiota();
+            emprestimo = true;
+            saldo += 1000;
+            rodadas = 0;
+            saveToStorage();
+            updateSaldoDisplay();
+        }, 3000);
+    } else {
+        // Pagar dívida
+        if (saldo >= 1000) {
+            saldo -= 1000;
+            emprestimo = false;
+            saveToStorage();
+            updateSaldoDisplay();
+            showAgiota('assets/img/arthurDinherio.png', 'Ai sim cupixa valeu', false);
+            setTimeout(hideAgiota, 2000);
+        } else {
+            // Não tem dinheiro, game over
+            hideAgiota();
+            setTimeout(() => {
+                showAgiota('assets/img/arthurArma.png', '', false);
+                setTimeout(() => {
+                    hideAgiota();
+                    const tiroImg = document.createElement('img');
+                    tiroImg.src = 'assets/img/9418.jpg';
+                    tiroImg.style.position = 'fixed';
+                    tiroImg.style.top = '50%';
+                    tiroImg.style.left = '50%';
+                    tiroImg.style.transform = 'translate(-50%, -50%)';
+                    tiroImg.style.width = '300px';
+                    tiroImg.style.zIndex = '1002';
+                    document.body.appendChild(tiroImg);
+                    setTimeout(() => {
+                        document.body.removeChild(tiroImg);
+                        showGameOver();
+                    }, 1000);
+                }, 1000);
+            }, 500);
+        }
+    }
+});
+
+agiotaReject.addEventListener('click', () => {
+    hideAgiota();
+    if (!emprestimo) {
+        // Recusar empréstimo, tudo normal
+    } else {
+        // Não pagar, game over
+        hideAgiota();
+        setTimeout(() => {
+            showAgiota('assets/img/arthurArma.png', '', false);
+            setTimeout(() => {
+                hideAgiota();
+                const tiroImg = document.createElement('img');
+                tiroImg.src = 'assets/img/9418.png';
+                tiroImg.style.position = 'fixed';
+                tiroImg.style.top = '50%';
+                tiroImg.style.left = '50%';
+                tiroImg.style.transform = 'translate(-50%, -50%)';
+                tiroImg.style.width = '300px';
+                tiroImg.style.zIndex = '1002';
+                document.body.appendChild(tiroImg);
+                setTimeout(() => {
+                    document.body.removeChild(tiroImg);
+                    showGameOver();
+                }, 1000);
+            }, 1000);
+        }, 500);
+    }
+});
+
+restartBtn.addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'index.html';
+});
+
 // Initialize
+loadFromStorage();
 updateSaldoDisplay();
+checkAgiota();

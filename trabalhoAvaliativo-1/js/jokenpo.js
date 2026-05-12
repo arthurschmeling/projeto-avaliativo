@@ -19,6 +19,8 @@ const gameState = {
     currentBet: CONFIG.defaultBet,
     isAllIn: false,
     isPlaying: false,
+    emprestimo: false,
+    rodadas: 0,
     stats: {
         wins: 0,
         draws: 0,
@@ -49,6 +51,14 @@ const elements = {
     winsHeader: document.getElementById('wins-header'),
     drawsHeader: document.getElementById('draws-header'),
     lossesHeader: document.getElementById('losses-header'),
+    agiotaOverlay: document.getElementById('agiota-overlay'),
+    agiotaImage: document.getElementById('agiota-image'),
+    agiotaDialogue: document.getElementById('agiota-dialogue'),
+    agiotaOptions: document.getElementById('agiota-options'),
+    agiotaAccept: document.getElementById('agiota-accept'),
+    agiotaReject: document.getElementById('agiota-reject'),
+    gameOverOverlay: document.getElementById('game-over-overlay'),
+    restartBtn: document.getElementById('restart-btn'),
 };
 
 // ============================================
@@ -69,6 +79,72 @@ const choiceImages = {
         cpu: 'assets/img/tesouraCPU.png',
     },
 };
+
+// ============================================
+// FUNÇÕES AUXILIARES PARA AGIOTA
+// ============================================
+
+function loadFromStorage() {
+    const balance = localStorage.getItem('saldo');
+    const emprestimo = localStorage.getItem('emprestimo') === 'true';
+    const rodadas = parseInt(localStorage.getItem('rodadas')) || 0;
+    const stats = JSON.parse(localStorage.getItem('stats')) || { wins: 0, draws: 0, losses: 0 };
+    if (balance !== null) gameState.balance = parseFloat(balance);
+    gameState.emprestimo = emprestimo;
+    gameState.rodadas = rodadas;
+    gameState.stats = stats;
+}
+
+function saveToStorage() {
+    localStorage.setItem('saldo', gameState.balance);
+    localStorage.setItem('emprestimo', gameState.emprestimo);
+    localStorage.setItem('rodadas', gameState.rodadas);
+    localStorage.setItem('stats', JSON.stringify(gameState.stats));
+}
+
+function typewriterEffect(element, text, speed = 50) {
+    element.textContent = '';
+    let i = 0;
+    const timer = setInterval(() => {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(timer);
+        }
+    }, speed);
+}
+
+function showAgiota(imageSrc, dialogue, options = true) {
+    elements.agiotaImage.src = imageSrc;
+    elements.agiotaOverlay.classList.add('show');
+    typewriterEffect(elements.agiotaDialogue, dialogue);
+    if (options) {
+        elements.agiotaOptions.style.display = 'flex';
+    } else {
+        elements.agiotaOptions.style.display = 'none';
+    }
+}
+
+function hideAgiota() {
+    elements.agiotaOverlay.classList.remove('show');
+}
+
+function showGameOver() {
+    elements.gameOverOverlay.classList.add('show');
+}
+
+function checkAgiota() {
+    if (gameState.balance <= 0 && !gameState.emprestimo) {
+        // Oferta de empréstimo
+        showAgiota('assets/img/arthurDinherio.png', 'O meu acabou o dinheiro ai cupixa?, eu te empresto uma graninha se tu quiser');
+    } else if (gameState.emprestimo && gameState.rodadas >= 10) {
+        // Cobrança
+        showAgiota('assets/img/arthurDinherio.png', 'Eai cupixa ta com meu dinheiro?');
+        elements.agiotaAccept.textContent = 'Dar o Dinheiro';
+        elements.agiotaReject.textContent = 'Não Dar o Dinheiro';
+    }
+}
 
 // ============================================
 // LÓGICA DO JOGO
@@ -227,12 +303,17 @@ function playGame(playerChoice) {
             gameState.stats.losses += 1;
         }
 
+        gameState.rodadas += 1;
+        saveToStorage();
         updateBalance();
         updateStats();
         updateBetButtons();
         triggerConfetti(result);
         showResult(result, betAmount);
         setPlayingState(false);
+
+        // Verificar agiota após o jogo
+        setTimeout(checkAgiota, 1000);
     }, 800);
 }
 
@@ -281,17 +362,105 @@ elements.allInBtn.addEventListener('click', () => {
 
 elements.playAgainBtn.addEventListener('click', resetGame);
 
+// Event listeners para agiota
+elements.agiotaAccept.addEventListener('click', () => {
+    hideAgiota();
+    if (!gameState.emprestimo) {
+        // Aceitar empréstimo
+        showAgiota('assets/img/arthurDinherio.png', 'Toma aqui entao cupixa, mas o seguinte hein é melhor tu me pagar arrombado se nao.....', false);
+        setTimeout(() => {
+            hideAgiota();
+            gameState.emprestimo = true;
+            gameState.balance += 1000;
+            gameState.rodadas = 0;
+            saveToStorage();
+            updateBalance();
+            updateBetButtons();
+        }, 3000);
+    } else {
+        // Pagar dívida
+        if (gameState.balance >= 1000) {
+            gameState.balance -= 1000;
+            gameState.emprestimo = false;
+            saveToStorage();
+            updateBalance();
+            showAgiota('assets/img/arthurDinherio.png', 'Ai sim cupixa valeu', false);
+            setTimeout(hideAgiota, 2000);
+        } else {
+            // Não tem dinheiro, game over
+            hideAgiota();
+            setTimeout(() => {
+                showAgiota('assets/img/arthurArma.png', '', false);
+                setTimeout(() => {
+                    hideAgiota();
+                    // Mostrar tiro
+                    const tiroImg = document.createElement('img');
+                    tiroImg.src = 'assets/img/9418.jpg';
+                    tiroImg.style.position = 'fixed';
+                    tiroImg.style.top = '50%';
+                    tiroImg.style.left = '50%';
+                    tiroImg.style.transform = 'translate(-50%, -50%)';
+                    tiroImg.style.width = '300px';
+                    tiroImg.style.zIndex = '1002';
+                    document.body.appendChild(tiroImg);
+                    setTimeout(() => {
+                        document.body.removeChild(tiroImg);
+                        showGameOver();
+                    }, 1000);
+                }, 1000);
+            }, 500);
+        }
+    }
+});
+
+elements.agiotaReject.addEventListener('click', () => {
+    hideAgiota();
+    if (!gameState.emprestimo) {
+        // Recusar empréstimo, tudo normal
+    } else {
+        // Não pagar, game over
+        hideAgiota();
+        setTimeout(() => {
+            showAgiota('assets/img/arthurArma.png', '', false);
+            setTimeout(() => {
+                hideAgiota();
+                const tiroImg = document.createElement('img');
+                tiroImg.src = 'assets/img/9418.png';
+                tiroImg.style.position = 'fixed';
+                tiroImg.style.top = '50%';
+                tiroImg.style.left = '50%';
+                tiroImg.style.transform = 'translate(-50%, -50%)';
+                tiroImg.style.width = '300px';
+                tiroImg.style.zIndex = '1002';
+                document.body.appendChild(tiroImg);
+                setTimeout(() => {
+                    document.body.removeChild(tiroImg);
+                    showGameOver();
+                }, 1000);
+            }, 1000);
+        }, 500);
+    }
+});
+
+elements.restartBtn.addEventListener('click', () => {
+    localStorage.clear();
+    window.location.href = 'index.html';
+});
+
 // ============================================
 // INICIALIZAÇÃO
 // ============================================
 
 function init() {
+    loadFromStorage();
     updateBalance();
     updateCurrentBet();
     updateStats();
     updateBetButtons();
     elements.playerHandImg.src = choiceImages.pedra.player;
     elements.cpuHandImg.src = choiceImages.pedra.cpu;
+    // Verificar agiota no início
+    checkAgiota();
 }
 
 init();
