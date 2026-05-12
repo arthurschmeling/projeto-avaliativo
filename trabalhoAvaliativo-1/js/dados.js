@@ -7,7 +7,7 @@ const diceImages = [
     "assets/img/png6.com.png"
 ];
 
-// DOM Elements
+
 const playerImg = document.getElementById("dice-player");
 const statusPlayer = document.getElementById("status-player");
 const message = document.getElementById("message");
@@ -28,14 +28,14 @@ const agiotaReject = document.getElementById("agiota-reject");
 const gameOverOverlay = document.getElementById("game-over-overlay");
 const restartBtn = document.getElementById("restart-btn");
 
-// Game State
+
 let saldo = 1000;
 let chosenNumber = null;
 let betAmount = 0;
 let emprestimo = false;
 let rodadas = 0;
 
-// Update saldo display
+
 function updateSaldoDisplay() {
     saldoDisplay.textContent = saldo;
     betInput.max = saldo;
@@ -60,10 +60,6 @@ function addHistoryEntry(chosenNumber, rolledValue, betAmount, won) {
     `;
     historyList.prepend(entry);
 }
-
-// ============================================
-// FUNÇÕES AUXILIARES PARA AGIOTA
-// ============================================
 
 function loadFromStorage() {
     const balance = localStorage.getItem('saldo');
@@ -122,22 +118,22 @@ function checkAgiota() {
     }
 }
 
-// Number selection
+
 numberButtons.forEach(button => {
     button.addEventListener("click", function() {
-        // Remove selected class from all buttons
+    
         numberButtons.forEach(btn => btn.classList.remove("selected"));
         
-        // Add selected class to clicked button
+       
         this.classList.add("selected");
         
-        // Update chosen number
+    
         chosenNumber = parseInt(this.dataset.number);
         chosenNumberDisplay.textContent = `Número escolhido: ${chosenNumber}`;
     });
 });
 
-// Bet all button
+
 quickBetButtons.forEach(button => {
     button.addEventListener("click", function() {
         const amount = parseInt(this.dataset.amount);
@@ -154,20 +150,20 @@ betAllButton.addEventListener("click", function() {
     quickBetButtons.forEach(btn => btn.classList.remove("active"));
 });
 
-// Roll die function
+
 function rollDie() {
     return Math.floor(Math.random() * 6) + 1;
 }
 
-// Update dice images
+
 function updateDiceImages(imgElement, value) {
     imgElement.src = diceImages[value - 1];
     imgElement.alt = `Dado mostrando ${value}`;
 }
 
-// Play round
+
 function playRound() {
-    // Validate inputs
+
     if (chosenNumber === null) {
         message.textContent = "Escolha um número de 1 a 6!";
         return;
@@ -185,44 +181,44 @@ function playRound() {
         return;
     }
     
-    // Disable button during rolling
+  
     rollButton.disabled = true;
     numberButtons.forEach(btn => btn.disabled = true);
     betInput.disabled = true;
     betAllButton.disabled = true;
     
-    // Start rolling animation
+
     playerImg.classList.add("rolling");
 
-    // Alternate dice faces during animation
+ 
     const rollInterval = setInterval(() => {
         updateDiceImages(playerImg, rollDie());
     }, 100);
 
-    // Simulate rolling time
+   
     setTimeout(() => {
         clearInterval(rollInterval);
         
         const rolledValue = rollDie();
         
-        // Stop animation
+      
         playerImg.classList.remove("rolling");
         
-        // Reset classes
+    
         playerImg.classList.remove("winner", "loser");
         
         updateDiceImages(playerImg, rolledValue);
 
-        // Check if player guessed correctly
+       
         if (rolledValue === chosenNumber) {
-            // Player won
+           
             saldo = saldo + betAmount * 2.3;
             playerImg.classList.add("winner");
             statusPlayer.textContent = `Você acertou! +R$ ${betAmount}`;
             message.textContent = `🎉 Parabéns! Você ganhou R$ ${betAmount}`;
             addHistoryEntry(chosenNumber, rolledValue, betAmount, true);
         } else {
-            // Player lost
+           
             saldo = saldo - betAmount;
             playerImg.classList.add("loser");
             statusPlayer.textContent = `Errou! -R$ ${betAmount}. Número: ${rolledValue}`;
@@ -240,26 +236,26 @@ function playRound() {
         saveToStorage();
         updateSaldoDisplay();
         
-        // Re-enable controls
+        
         rollButton.disabled = false;
         numberButtons.forEach(btn => btn.disabled = false);
         betInput.disabled = false;
         betAllButton.disabled = false;
         
-        // Reset quick bet selection
+       
         quickBetButtons.forEach(btn => btn.classList.remove("active"));
         
-        // Reset bet input
+        
         betInput.value = "";
         
-        // Verificar agiota após o jogo
+     
         setTimeout(checkAgiota, 1000);
     }, 800);
 }
 
 rollButton.addEventListener("click", playRound);
 
-// DEPOSIT FUNCTIONALITY
+
 const depositButton = document.getElementById("deposit-button");
 const depositModal = document.getElementById("deposit-modal");
 const closeModal = document.getElementById("close-modal");
@@ -271,7 +267,7 @@ const totalAmountDisplay = document.getElementById("total-amount");
 const modalMessage = document.getElementById("modal-message");
 let selectedMethod = "cartao";
 
-// Open modal
+
 if (depositButton) {
     depositButton.addEventListener("click", function() {
         depositModal.classList.add("open");
@@ -280,14 +276,14 @@ if (depositButton) {
     });
 }
 
-// Close modal
+
 closeModal.addEventListener("click", function() {
     depositModal.classList.remove("open");
     modalMessage.classList.remove("success", "error");
     modalMessage.textContent = "";
 });
 
-// Close modal when clicking outside
+
 depositModal.addEventListener("click", function(e) {
     if (e.target === depositModal) {
         depositModal.classList.remove("open");
@@ -295,7 +291,7 @@ depositModal.addEventListener("click", function(e) {
     }
 });
 
-// Select payment method
+
 methodButtons.forEach(button => {
     button.addEventListener("click", function() {
         methodButtons.forEach(btn => btn.classList.remove("selected"));
@@ -304,7 +300,7 @@ methodButtons.forEach(button => {
     });
 });
 
-// Quick amount buttons
+
 quickAmountButtons.forEach(button => {
     button.addEventListener("click", function() {
         const amount = parseFloat(this.dataset.amount);
@@ -317,19 +313,19 @@ quickAmountButtons.forEach(button => {
     });
 });
 
-// Update total amount display
+
 function updateTotalAmount() {
     const amount = parseFloat(depositAmountInput.value) || 0;
     totalAmountDisplay.textContent = amount.toFixed(2);
 }
 
-// Deposit amount input
+
 depositAmountInput.addEventListener("input", function() {
     quickAmountButtons.forEach(btn => btn.classList.remove("active"));
     updateTotalAmount();
 });
 
-// Confirm deposit
+
 confirmDepositBtn.addEventListener("click", function() {
     const amount = parseFloat(depositAmountInput.value);
     
@@ -343,7 +339,7 @@ confirmDepositBtn.addEventListener("click", function() {
         return;
     }
     
-    // Simulate deposit processing
+    
     confirmDepositBtn.disabled = true;
     confirmDepositBtn.textContent = "Processando...";
     
@@ -371,11 +367,11 @@ function showModalMessage(text, type) {
     modalMessage.classList.add(type);
 }
 
-// Event listeners para agiota
+
 agiotaAccept.addEventListener('click', () => {
     hideAgiota();
     if (!emprestimo) {
-        // Aceitar empréstimo
+        
         showAgiota('assets/img/arthurDinherio.png', 'Toma aqui entao cupixa, mas o seguinte hein é melhor tu me pagar arrombado se nao.....', false);
         setTimeout(() => {
             hideAgiota();
@@ -386,7 +382,7 @@ agiotaAccept.addEventListener('click', () => {
             updateSaldoDisplay();
         }, 3000);
     } else {
-        // Pagar dívida
+       
         if (saldo >= 1000) {
             saldo -= 1000;
             emprestimo = false;
@@ -395,7 +391,7 @@ agiotaAccept.addEventListener('click', () => {
             showAgiota('assets/img/arthurDinherio.png', 'Ai sim cupixa valeu', false);
             setTimeout(hideAgiota, 2000);
         } else {
-            // Não tem dinheiro, game over
+            
             hideAgiota();
             setTimeout(() => {
                 showAgiota('assets/img/arthurArma.png', '', false);
@@ -423,9 +419,9 @@ agiotaAccept.addEventListener('click', () => {
 agiotaReject.addEventListener('click', () => {
     hideAgiota();
     if (!emprestimo) {
-        // Recusar empréstimo, tudo normal
+  
     } else {
-        // Não pagar, game over
+    
         hideAgiota();
         setTimeout(() => {
             showAgiota('assets/img/arthurArma.png', '', false);
@@ -454,7 +450,7 @@ restartBtn.addEventListener('click', () => {
     window.location.href = 'index.html';
 });
 
-// Initialize
+
 loadFromStorage();
 updateSaldoDisplay();
 checkAgiota();
